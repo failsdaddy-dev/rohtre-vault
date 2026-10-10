@@ -94,15 +94,12 @@ export function UserMenu() {
                 Admin panel
               </Link>
             )}
-            <Link
-              href="/login"
-              role="menuitem"
-              onClick={close}
-              className="flex items-center gap-4 px-4 py-2 hover:bg-hover"
-            >
-              <LogoutIcon />
-              Sign out
-            </Link>
+            <form action="/auth/signout" method="post">
+              <button type="submit" role="menuitem" className="flex w-full items-center gap-4 px-4 py-2 text-left hover:bg-hover">
+                <LogoutIcon />
+                Sign out
+              </button>
+            </form>
           </div>
         </div>
       )}

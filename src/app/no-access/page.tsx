@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { LockIcon } from "@/components/icons";
 
 export const metadata: Metadata = { title: "No access" };
@@ -12,12 +11,11 @@ export default function NoAccess() {
       <p className="max-w-md text-fg-2">
         It has been disabled or has expired. If you think this is a mistake, ask the admin to check your account.
       </p>
-      <Link
-        href="/login"
-        className="mt-3 inline-flex h-9 items-center rounded-full bg-chip px-4 text-sm font-medium hover:bg-chip-hover"
-      >
-        Back to sign in
-      </Link>
+      <form action="/auth/signout" method="post">
+        <button type="submit" className="mt-3 inline-flex h-9 items-center rounded-full bg-chip px-4 text-sm font-medium hover:bg-chip-hover">
+          Sign out
+        </button>
+      </form>
     </main>
   );
 }

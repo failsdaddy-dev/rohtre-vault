@@ -4,6 +4,8 @@
 // and the shell's layout state (guide expanded/mini, drawer open).
 
 import { createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { setDataSource } from "@/lib/data-source";
+import { supabaseSource } from "@/lib/data-source-supabase";
 import type { CurrentUser, Filter, FilterGroup, Section } from "@/lib/types";
 
 export type GuideMode = "full" | "mini" | "none";
@@ -14,6 +16,8 @@ interface HubValue {
   filters: Filter[];
   filterBySlug: Map<string, Filter>;
   user: CurrentUser;
+  /** True when Supabase isn't configured and the app shows sample data. */
+  sampleMode: boolean;
   guideMode: GuideMode;
   /** Wide screens: user's choice of full vs mini guide. */
   toggleGuide: () => void;
@@ -44,14 +48,19 @@ export function HubProvider({
   groups,
   filters,
   user,
+  sampleMode,
   children,
 }: {
   sections: Section[];
   groups: FilterGroup[];
   filters: Filter[];
   user: CurrentUser;
+  sampleMode: boolean;
   children: ReactNode;
 }) {
+  // Idempotent: points every data call at Supabase before children render.
+  if (!sampleMode) setDataSource(supabaseSource);
+
   const wide = useMedia(WIDE, true);
   const medium = useMedia(MEDIUM, true);
   const [preferMini, setPreferMini] = useState(false);
@@ -75,12 +84,13 @@ export function HubProvider({
       filters,
       filterBySlug: new Map(filters.map((f) => [f.slug, f])),
       user,
+      sampleMode,
       guideMode,
       toggleGuide,
       drawerOpen,
       setDrawerOpen,
     }),
-    [sections, groups, filters, user, guideMode, toggleGuide, drawerOpen, setDrawerOpen],
+    [sections, groups, filters, user, sampleMode, guideMode, toggleGuide, drawerOpen, setDrawerOpen],
   );
 
   return <HubContext value={value}>{children}</HubContext>;

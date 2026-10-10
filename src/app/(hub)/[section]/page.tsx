@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BrowseView } from "@/components/browse-view";
 import { GridSkeleton } from "@/components/states";
-import { SECTIONS } from "@/lib/mock-data";
+import { findSection } from "@/lib/hub-data";
 
 async function SectionBrowse({ params }: { params: Promise<{ section: string }> }) {
   const { section } = await params;
-  const s = SECTIONS.find((x) => x.slug === section);
+  const s = await findSection(section);
   if (!s) notFound();
   return (
     <>

@@ -1,6 +1,5 @@
-// The one place the UI gets data from. Stage 1 uses the mock implementation;
-// Stage 4 swaps in Supabase (browse_cards RPC, RLS-protected tables) behind
-// the same interface.
+// The one place the UI gets data from: Supabase (data-source-supabase.ts) when
+// configured, otherwise the sample data below. Both follow the same rules.
 
 import { CARDS, FILTERS, FILTER_GROUPS, SECTIONS, mockLinkLabels } from "./mock-data";
 import type { BrowsePage, BrowseQuery, Card, Cursor, Filter, FilterGroup, LinkLabel, Section } from "./types";
@@ -117,6 +116,14 @@ export const mockSource: DataSource = {
   },
 };
 
+let real: DataSource | null = null;
+
+/** Supabase when .env.local is filled in, otherwise sample data. */
 export function getDataSource(): DataSource {
-  return mockSource;
+  return real ?? mockSource;
+}
+
+/** Called once by the signed-in shell (client side) when Supabase is configured. */
+export function setDataSource(source: DataSource) {
+  real = source;
 }

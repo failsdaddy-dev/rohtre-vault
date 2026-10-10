@@ -1,16 +1,13 @@
-import { ShieldIcon } from "@/components/icons";
-import { MessageState, PillLink } from "@/components/states";
+import { Suspense } from "react";
+import { AdminGate } from "@/components/admin/gate";
+import { AdminOverview } from "@/components/admin/overview";
 
-export default function AdminPlaceholder() {
+export default function Page() {
   return (
-    <>
-      <title>Admin · RohTre Vault</title>
-      <MessageState
-        icon={<ShieldIcon size={48} />}
-        title="Admin panel"
-        body="Cards, filters, sections, users and the audit log are built in Stage 5."
-        action={<PillLink href="/effects">Back to Effects</PillLink>}
-      />
-    </>
+    <Suspense fallback={null}>
+      <AdminGate>
+        <AdminOverview />
+      </AdminGate>
+    </Suspense>
   );
 }

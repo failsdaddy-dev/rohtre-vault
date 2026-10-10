@@ -115,3 +115,15 @@ describe("link parsing", () => {
     expect(loomEmbedUrl("https://evil.example/share/abc")).toBeNull();
   });
 });
+
+import { safeNext } from "@/lib/url-state";
+
+describe("post-login redirect is same-site only", () => {
+  it("keeps internal paths and blocks other sites", () => {
+    expect(safeNext("/effects?f=cartoon")).toBe("/effects?f=cartoon");
+    expect(safeNext("//evil.example")).toBe("/effects");
+    expect(safeNext("https://evil.example")).toBe("/effects");
+    expect(safeNext(String.fromCharCode(47, 92) + "evil.example")).toBe("/effects");
+    expect(safeNext(null)).toBe("/effects");
+  });
+});

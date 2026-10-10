@@ -197,6 +197,32 @@ begin
   select count(*) into n from public.audit_log where actor_id in (u_restricted, u_disabled) and action = 'open_link_denied';
   names := array_append(names, (format('refused link opens are audited (got %s, want 2)', n))::text); oks := array_append(oks, ((n = 2))::boolean);
 
+  -- ------------------------------------------- admin helpers (Stage 5)
+  perform set_config('request.jwt.claims', json_build_object('sub', u_restricted, 'role', 'authenticated', 'aal', 'aal2')::text, true);
+  begin execute 'set local role authenticated'; perform public.admin_merge_filters(f_fc20, f_cartoon); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  execute 'reset role'; names := array_append(names, ('editor cannot merge filters')::text); oks := array_append(oks, (ok)::boolean);
+  begin execute 'set local role authenticated'; perform * from public.admin_link_open_counts(); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  execute 'reset role'; names := array_append(names, ('editor cannot read download counts')::text); oks := array_append(oks, (ok)::boolean);
+
+  perform set_config('request.jwt.claims', json_build_object('sub', u_admin, 'role', 'authenticated', 'aal', 'aal2')::text, true);
+  execute 'set local role authenticated';
+  perform public.admin_set_card_filters(c3, array[f_cartoon]);
+  select count(*) into n from public.card_filters where card_id = c3;
+  names := array_append(names, (format('admin_set_card_filters replaces filters (got %s, want 1)', n))::text); oks := array_append(oks, (n = 1)::boolean);
+  perform public.admin_merge_filters(f_fc20, f_cartoon);
+  select count(*) into n from public.filters where id = f_fc20;
+  names := array_append(names, ('admin_merge_filters removes the merged filter')::text); oks := array_append(oks, (n = 0)::boolean);
+  select count(*) into n from public.card_filters where card_id = c2 and filter_id = f_cartoon;
+  names := array_append(names, ('merged cards keep the target filter')::text); oks := array_append(oks, (n = 1)::boolean);
+  perform public.admin_reorder('cards', array[c2, c1]);
+  select count(*) into n from public.cards where (id = c2 and sort_order = 10) or (id = c1 and sort_order = 20);
+  names := array_append(names, ('admin_reorder sets manual order')::text); oks := array_append(oks, (n = 2)::boolean);
+  select coalesce(sum(opens), 0) into n from public.admin_link_open_counts() where card_id = c1;
+  names := array_append(names, (format('download counts per card (got %s, want 1)', n))::text); oks := array_append(oks, (n = 1)::boolean);
+  execute 'reset role';
+
   -- -------------------------------------------------------------- report
   for i in 1 .. cardinality(names) loop
     if oks[i] then passed := passed + 1; report := report || E'\n  PASS  ' || names[i];

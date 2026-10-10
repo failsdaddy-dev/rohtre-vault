@@ -387,6 +387,26 @@ export type Database = {
         Args: { p_card: string; p_links: Json }
         Returns: undefined
       }
+      admin_set_card_filters: {
+        Args: { p_card: string; p_filters: string[] }
+        Returns: undefined
+      }
+      admin_merge_filters: {
+        Args: { p_from: string; p_into: string }
+        Returns: undefined
+      }
+      admin_reorder: {
+        Args: { p_ids: string[]; p_kind: string }
+        Returns: undefined
+      }
+      admin_link_open_counts: {
+        Args: never
+        Returns: {
+          card_id: string
+          last_opened: string
+          opens: number
+        }[]
+      }
       browse_cards: {
         Args: {
           p_after_id?: string
