@@ -30,10 +30,21 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 
+  // The landing page is public; signed-in people go straight to the library.
+  if (path === "/") {
+    if (!signedIn) return response;
+    const url = request.nextUrl.clone();
+    url.pathname = "/effects";
+    url.search = "";
+    const redirect = NextResponse.redirect(url);
+    for (const c of response.cookies.getAll()) redirect.cookies.set(c);
+    return redirect;
+  }
+
   if (!signedIn && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.search = path === "/" ? "" : `?next=${encodeURIComponent(path + request.nextUrl.search)}`;
+    url.search = `?next=${encodeURIComponent(path + request.nextUrl.search)}`;
     const redirect = NextResponse.redirect(url);
     for (const c of response.cookies.getAll()) redirect.cookies.set(c);
     return redirect;

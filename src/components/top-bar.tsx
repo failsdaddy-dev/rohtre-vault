@@ -25,7 +25,8 @@ export function Wordmark() {
 }
 
 /** Dark/light switch: the knob slides (transform only) and carries the current mode's icon. */
-function ThemeToggle({ theme }: { theme: "dark" | "light" }) {
+export function ThemeToggle() {
+  const { theme } = useSettings();
   const dark = theme === "dark";
   return (
     <button
@@ -140,7 +141,6 @@ function SearchForm({ autoFocus, onDone }: { autoFocus?: boolean; onDone?: () =>
 
 export function TopBar() {
   const { toggleGuide } = useHub();
-  const { theme } = useSettings();
   const [mobileSearch, setMobileSearch] = useState(false);
 
   if (mobileSearch) {
@@ -173,7 +173,7 @@ export function TopBar() {
         <IconButton label="Search" onClick={() => setMobileSearch(true)} className="sm:hidden">
           <SearchIcon />
         </IconButton>
-        <ThemeToggle theme={theme} />
+        <ThemeToggle />
         <UserMenu />
       </div>
     </header>

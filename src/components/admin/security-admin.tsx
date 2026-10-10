@@ -4,7 +4,6 @@
 // session is verified with a code (aal2), enforced by the database.
 // verified: https://supabase.com/docs/guides/auth/auth-mfa
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -16,6 +15,17 @@ type State =
   | { kind: "verify"; factorId: string }
   | { kind: "none" }
   | { kind: "enrolling"; factorId: string; qr: string; secret: string };
+
+/** Supabase returns "data:image/svg+xml;utf-8,<svg…>
+"; encode it into a valid data URL. */
+function qrSrc(raw: string): string {
+  const trimmed = raw.trim();
+  const comma = trimmed.indexOf(",");
+  if (trimmed.startsWith("data:image/svg+xml") && comma > 0) {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(trimmed.slice(comma + 1).trim())}`;
+  }
+  return trimmed;
+}
 
 export function SecurityAdmin() {
   const router = useRouter();
@@ -114,7 +124,8 @@ export function SecurityAdmin() {
           <>
             <p className="font-medium">1. Scan this code with your authenticator app</p>
             <div className="w-fit rounded-xl bg-white p-3">
-              <Image src={state.qr} alt="QR code for your authenticator app" width={180} height={180} unoptimized />
+              {/* eslint-disable-next-line @next/next/no-img-element -- inline SVG data from Supabase, not a remote image */}
+              <img src={qrSrc(state.qr)} alt="QR code for your authenticator app" width={180} height={180} />
             </div>
             <p className="text-sm text-fg-2">
               Can’t scan? Enter this key instead: <code className="select-all break-all">{state.secret}</code>
