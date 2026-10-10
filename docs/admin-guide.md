@@ -37,3 +37,15 @@ Quick tagging: in **Cards**, right-click any row to tick filters in place.
 ## Audit log
 Sign-ins, every link open (with the card and label), refused opens and admin
 changes. The Cards list shows how often each card's links were opened.
+
+## Two-factor sign-in (Admin → 2FA)
+- **Switch on:** scan the QR code with an authenticator app and enter the
+  6-digit code. From then on every admin sign-in asks for a code, and admin
+  tools stay locked until it's entered.
+- **Get a new QR code:** for a new phone. Scan the new code and confirm it;
+  only then does the old one stop working.
+- **Switch off:** asks you to confirm. Admin then needs only the password.
+  Keep it on unless you have a reason.
+- Lost your phone? In the Supabase SQL editor run
+  `delete from auth.mfa_factors where user_id = (select id from auth.users where email = 'you@example.com');`
+  then set 2FA up again.

@@ -32,6 +32,9 @@ begin
                (u_expired, 'zz-expired@test.local')) as v (id, email);
 
   update public.profiles set role = 'admin' where id = u_admin;
+  -- Admin has 2FA switched on (a verified authenticator factor).
+  insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+  values (gen_random_uuid(), u_admin, 'zz-test', 'totp', 'verified', now(), now());
   update public.profiles set all_access = true where id in (u_senior, u_disabled, u_expired);
   update public.profiles set is_active = false where id = u_disabled;
   update public.profiles set expires_at = now() - interval '1 day' where id = u_expired;
@@ -168,7 +171,23 @@ begin
   begin execute 'set local role authenticated';
     insert into public.cards (section_id, slug, title) values (sec, 'a1', 'Zz admin aal1'); ok := false;
   exception when insufficient_privilege then ok := true; end;
-  execute 'reset role'; names := array_append(names, ('admin without 2FA cannot write')::text); oks := array_append(oks, (ok)::boolean);
+  execute 'reset role'; names := array_append(names, ('2FA on: admin session without the code cannot write')::text); oks := array_append(oks, (ok)::boolean);
+
+  -- 2FA switched off: the password session is enough.
+  delete from auth.mfa_factors where user_id = u_admin;
+  perform set_config('request.jwt.claims', json_build_object('sub', u_admin, 'role', 'authenticated', 'aal', 'aal1')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.cards where id = c3;
+  execute 'reset role';
+  names := array_append(names, ('2FA off: admin works with the password session')::text); oks := array_append(oks, (n = 1)::boolean);
+  -- A plain editor never becomes admin, whatever their 2FA state.
+  perform set_config('request.jwt.claims', json_build_object('sub', u_restricted, 'role', 'authenticated', 'aal', 'aal1')::text, true);
+  begin execute 'set local role authenticated';
+    insert into public.cards (section_id, slug, title) values (sec, 'hack2', 'Zz hack2'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  execute 'reset role'; names := array_append(names, ('editor without 2FA still cannot write')::text); oks := array_append(oks, (ok)::boolean);
+  insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+  values (gen_random_uuid(), u_admin, 'zz-test', 'totp', 'verified', now(), now());
 
   perform set_config('request.jwt.claims', json_build_object('sub', u_admin, 'role', 'authenticated', 'aal', 'aal2')::text, true);
   execute 'set local role authenticated';

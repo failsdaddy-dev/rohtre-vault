@@ -62,16 +62,22 @@ export async function getCaller(req: Request): Promise<Caller | null> {
   return { id: claims.sub, email: String(claims.email ?? ""), aal: String(claims.aal ?? "aal1") };
 }
 
-/** Active admin profile and a 2FA-verified session, same rule as private.is_admin(). */
+/**
+ * Same rule as private.is_admin(): an active admin profile, and if the admin
+ * has 2FA switched on, a session verified with the code (aal2).
+ */
 export async function isAdmin(caller: Caller): Promise<boolean> {
-  if (caller.aal !== "aal2") return false;
   const { data } = await admin
     .from("profiles")
     .select("role, is_active, expires_at")
     .eq("id", caller.id)
     .maybeSingle();
   if (!data || data.role !== "admin" || !data.is_active) return false;
-  return !data.expires_at || new Date(data.expires_at) > new Date();
+  if (data.expires_at && new Date(data.expires_at) <= new Date()) return false;
+  if (caller.aal === "aal2") return true;
+  const { data: f, error } = await admin.auth.admin.mfa.listFactors({ userId: caller.id });
+  if (error) return false;
+  return !(f?.factors ?? []).some((x) => x.status === "verified");
 }
 
 export async function audit(caller: Caller, action: string, details: Record<string, unknown>) {

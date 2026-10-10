@@ -70,7 +70,7 @@ needs an interactive terminal). Never paste keys or passwords into chat.
    in a 2FA-verified session (the database enforces this).
 
 6. **Access tests** – paste `supabase/tests/rls_test.sql` into the SQL editor
-   and run it. A red message `RLS TEST RESULTS: 48 passed, 0 failed` is the
+   and run it. A red message `RLS TEST RESULTS: 50 passed, 0 failed` is the
    success case; it rolls all test data back.
 
 ## How access works
@@ -83,7 +83,8 @@ needs an interactive terminal). Never paste keys or passwords into chat.
   links alike.
 - Mega links never reach the browser until a click. `get-asset-link` checks
   access, writes the audit log, then returns the one link.
-- Admin writes require an active admin **and** a 2FA-verified session.
+- Admin writes require an active admin, plus a code-verified session while
+  admin 2FA is switched on (Admin → 2FA).
 
 ## Folders
 

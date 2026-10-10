@@ -42,10 +42,18 @@ export async function requireViewer(opts: { allowPasswordChange?: boolean } = {}
   return viewer;
 }
 
-/** Admin pages. Without a 2FA-verified session the admin is sent to set it up. */
+/**
+ * Admin pages. If the admin has 2FA switched on but this session hasn't
+ * entered the code yet, they're sent to enter it first. The database applies
+ * the same rule to every admin write.
+ */
 export async function requireAdmin(opts: { allowAal1?: boolean } = {}): Promise<Viewer> {
   const viewer = await requireViewer();
   if (viewer.user.role !== "admin") notFound();
-  if (viewer.aal !== "aal2" && !opts.allowAal1) redirect("/admin/security");
+  if (viewer.aal !== "aal2" && !opts.allowAal1) {
+    const sb = await supabaseServer();
+    const { data } = await sb.auth.mfa.listFactors();
+    if (data?.totp?.some((f) => f.status === "verified")) redirect("/admin/security");
+  }
   return viewer;
 }
