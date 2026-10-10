@@ -383,13 +383,13 @@ export type Database = {
           url: string
         }[]
       }
-      admin_save_card_links: {
-        Args: { p_card: string; p_links: Json }
-        Returns: undefined
-      }
-      admin_set_card_filters: {
-        Args: { p_card: string; p_filters: string[] }
-        Returns: undefined
+      admin_link_open_counts: {
+        Args: never
+        Returns: {
+          card_id: string
+          last_opened: string
+          opens: number
+        }[]
       }
       admin_merge_filters: {
         Args: { p_from: string; p_into: string }
@@ -399,13 +399,13 @@ export type Database = {
         Args: { p_ids: string[]; p_kind: string }
         Returns: undefined
       }
-      admin_link_open_counts: {
-        Args: never
-        Returns: {
-          card_id: string
-          last_opened: string
-          opens: number
-        }[]
+      admin_save_card_links: {
+        Args: { p_card: string; p_links: Json }
+        Returns: undefined
+      }
+      admin_set_card_filters: {
+        Args: { p_card: string; p_filters: string[] }
+        Returns: undefined
       }
       browse_cards: {
         Args: {
