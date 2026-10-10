@@ -6,7 +6,7 @@ tutorial and open its project files or download (Mega links). Only the admin
 creates accounts, and each editor can be limited to certain filters.
 
 Stack: Next.js 16 (App Router) · TypeScript · Tailwind 4 · Supabase (Postgres
-with RLS, Auth, Edge Functions). Font: Outfit (SIL Open Font License).
+with RLS, Auth, Edge Functions). Font: Space Grotesk (SIL Open Font License).
 
 ## Run it locally
 

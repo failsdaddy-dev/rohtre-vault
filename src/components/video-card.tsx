@@ -155,6 +155,8 @@ export const VideoCard = memo(function VideoCard({ card, kind }: { card: Card; k
         onPointerDown={(e) => {
           touched.current = e.pointerType === "touch";
         }}
+        onFocus={enter}
+        onBlur={leave}
         onClick={(e) => {
           // Touch: first tap plays the preview, second tap opens the card.
           if (touched.current && card.youtubeId && !active) {

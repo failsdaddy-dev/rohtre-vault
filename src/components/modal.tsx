@@ -3,7 +3,7 @@
 // Accessible dialog: focus moves in and is trapped, Esc and backdrop close,
 // focus returns to the opener. Opens with fade + slight scale (R24).
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { CloseIcon } from "./icons";
 
@@ -21,6 +21,18 @@ export function Modal({
   wide?: boolean;
 }) {
   const panel = useRef<HTMLDivElement>(null);
+  // Stay mounted briefly after closing so the exit animation can play.
+  const [shown, setShown] = useState(open);
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setShown(true);
+  }
+  useEffect(() => {
+    if (open || !shown) return;
+    const t = setTimeout(() => setShown(false), 150);
+    return () => clearTimeout(t);
+  }, [open, shown]);
   // Keep the latest onClose without re-running the open/close effect.
   const closeRef = useRef(onClose);
   useEffect(() => {
@@ -65,18 +77,18 @@ export function Modal({
     };
   }, [open]);
 
-  if (!open) return null;
+  if (!shown) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:p-0">
-      <div className="vh-fade-in absolute inset-0 bg-[var(--overlay)]" onClick={onClose} aria-hidden="true" />
+      <div className={`${open ? "vh-fade-in" : "vh-fade-out"} absolute inset-0 bg-[var(--overlay)]`} onClick={onClose} aria-hidden="true" />
       <div
         ref={panel}
         role="dialog"
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className={`vh-pop-in relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl bg-menu shadow-2xl outline-none max-sm:max-h-full max-sm:h-full max-sm:rounded-none ${
+        className={`${open ? "vh-pop-in" : "vh-pop-out pointer-events-none"} relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl bg-menu shadow-2xl outline-none max-sm:max-h-full max-sm:h-full max-sm:rounded-none ${
           wide ? "max-w-[960px]" : "max-w-[560px]"
         }`}
       >

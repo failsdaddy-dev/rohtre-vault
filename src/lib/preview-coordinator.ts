@@ -50,6 +50,13 @@ export const previewCoordinator = {
   },
 };
 
+// Stop previews when the tab is hidden; nothing plays in the background.
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) previewCoordinator.setHovered(null);
+  });
+}
+
 export function usePreviewActive(id: string, autoplay: boolean): boolean {
   return useSyncExternalStore(
     previewCoordinator.subscribe,

@@ -60,7 +60,10 @@ export function ChipBar({ counts }: { counts: Record<string, number> }) {
     };
   }, [state.filters.length, quick.length]);
 
-  const scrollBy = (dir: 1 | -1) => row.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
+  const scrollBy = (dir: 1 | -1) => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    row.current?.scrollBy({ left: dir * 320, behavior: reduce ? "auto" : "smooth" });
+  };
 
   return (
     <div className="sticky top-14 z-20 bg-bg">

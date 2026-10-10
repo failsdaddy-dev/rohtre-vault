@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme-boot";
 import "./globals.css";
 
-// Outfit is licensed under the SIL Open Font License 1.1. next/font downloads
-// it at build time and serves it from this app, so browsers make no request
-// to Google. verified: https://github.com/google/fonts/blob/main/ofl/outfit/OFL.txt
-const outfit = Outfit({
-  variable: "--font-outfit",
+// Space Grotesk is licensed under the SIL Open Font License 1.1. next/font
+// downloads it at build time and serves it from this app, so browsers make no
+// request to Google. verified: https://github.com/google/fonts/blob/main/ofl/spacegrotesk/OFL.txt
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-brand",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-theme="dark" className={outfit.variable} suppressHydrationWarning>
+    <html lang="en" data-theme="dark" className={spaceGrotesk.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>

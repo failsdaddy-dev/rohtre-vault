@@ -88,7 +88,7 @@
   --color-brand-fg: var(--brand-fg);
   --color-focus: var(--focus);
   --color-danger: var(--danger);
-  --font-sans: var(--font-outfit), "Outfit", "Arial", sans-serif;
+  --font-sans: var(--font-brand), "Space Grotesk", "Arial", sans-serif;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -99,7 +99,7 @@ body {
   color: var(--fg);
 }
 body {
-  font-family: var(--font-outfit), "Outfit", Arial, sans-serif;
+  font-family: var(--font-brand), "Space Grotesk", Arial, sans-serif;
   font-size: 14px;
   line-height: 1.43;
   -webkit-font-smoothing: antialiased;
@@ -138,6 +138,14 @@ body {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes vh-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes vh-pop-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.97); }
+}
 @keyframes vh-toast-in {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -159,6 +167,8 @@ body {
 .vh-fade-in { animation: vh-fade-in var(--dur-2) var(--ease-out) both; }
 .vh-pop-in { animation: vh-pop-in var(--dur-2) var(--ease-out) both; }
 .vh-toast-in { animation: vh-toast-in var(--dur-3) var(--ease-out) both; }
+.vh-fade-out { animation: vh-fade-out var(--dur-1) var(--ease) both; }
+.vh-pop-out { animation: vh-pop-out var(--dur-1) var(--ease) both; }
 
 /* Press feedback shared by buttons and chips. */
 .vh-press {
