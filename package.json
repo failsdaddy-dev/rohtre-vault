@@ -1,0 +1,13 @@
+{
+  "name": "rohtre-videohub",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "sb": "supabase",
+    "db:push:dry": "supabase db push --linked --dry-run",
+    "db:types": "supabase gen types typescript --linked --schema public > src/lib/database.types.ts"
+  },
+  "devDependencies": {
+    "supabase": "^2.120.0"
+  }
+}
