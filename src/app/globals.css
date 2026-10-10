@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ tokens
+   Dark is the default theme; <html data-theme="light"> switches to light.
+   Neutrals follow the YouTube-like spec in the brief (R23); the accent is
+   our own red, used sparingly (brand mark, switch, badges, focus). */
+:root {
+  --bg: #0f0f0f;
+  --bg-elev: #212121;
+  --menu: #282828;
+  --fg: #f1f1f1;
+  --fg-2: #aaaaaa;
+  --line: rgba(255, 255, 255, 0.2);
+  --hover: rgba(255, 255, 255, 0.1);
+  --press: rgba(255, 255, 255, 0.2);
+  --chip: rgba(255, 255, 255, 0.1);
+  --chip-hover: rgba(255, 255, 255, 0.2);
+  --chip-on-bg: #f1f1f1;
+  --chip-on-fg: #0f0f0f;
+  --search-bg: #121212;
+  --search-border: #303030;
+  --search-btn: #222222;
+  --skeleton: rgba(255, 255, 255, 0.08);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --ph-a: #262626;
+  --ph-b: #141414;
+  --focus: #ff3b3b;
+  --brand: #e50914;
+  --brand-fg: #ffffff;
+  --danger: #ff6b6b;
+
+  --header-h: 56px;
+  --guide-full: 240px;
+  --guide-mini: 72px;
+  --radius-chip: 8px;
+  --radius-thumb: 12px;
+
+  --dur-1: 150ms;
+  --dur-2: 200ms;
+  --dur-3: 250ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-elev: #ffffff;
+  --menu: #ffffff;
+  --fg: #0f0f0f;
+  --fg-2: #606060;
+  --line: rgba(0, 0, 0, 0.1);
+  --hover: rgba(0, 0, 0, 0.05);
+  --press: rgba(0, 0, 0, 0.1);
+  --chip: rgba(0, 0, 0, 0.05);
+  --chip-hover: rgba(0, 0, 0, 0.1);
+  --chip-on-bg: #0f0f0f;
+  --chip-on-fg: #ffffff;
+  --search-bg: #ffffff;
+  --search-border: #cccccc;
+  --search-btn: #f8f8f8;
+  --skeleton: rgba(0, 0, 0, 0.06);
+  --overlay: rgba(0, 0, 0, 0.5);
+  --ph-a: #f4f4f4;
+  --ph-b: #e6e6e6;
+  --focus: #c4000f;
+  --brand: #d4000f;
+  --brand-fg: #ffffff;
+  --danger: #c62828;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elev: var(--bg-elev);
+  --color-menu: var(--menu);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-line: var(--line);
+  --color-hover: var(--hover);
+  --color-press: var(--press);
+  --color-chip: var(--chip);
+  --color-chip-hover: var(--chip-hover);
+  --color-chip-on-bg: var(--chip-on-bg);
+  --color-chip-on-fg: var(--chip-on-fg);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-focus: var(--focus);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-outfit), "Outfit", "Arial", sans-serif;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ------------------------------------------------------------------- base */
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: var(--font-outfit), "Outfit", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.43;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+::selection {
+  background: color-mix(in srgb, var(--focus) 35%, transparent);
+}
+
+/* Hide scrollbars on horizontally scrolling rows (chip bar). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ motion
+   Only transform and opacity are animated (R24). */
+@keyframes vh-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+@keyframes vh-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes vh-pop-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes vh-route-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes vh-toast-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vh-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton);
+}
+.vh-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--skeleton), transparent);
+  animation: vh-shimmer 1.4s var(--ease) infinite;
+}
+.vh-route-in { animation: vh-route-in var(--dur-3) var(--ease-out) backwards; }
+.vh-fade-in { animation: vh-fade-in var(--dur-2) var(--ease-out) both; }
+.vh-pop-in { animation: vh-pop-in var(--dur-2) var(--ease-out) both; }
+.vh-toast-in { animation: vh-toast-in var(--dur-3) var(--ease-out) both; }
+
+/* Press feedback shared by buttons and chips. */
+.vh-press {
+  transition: transform var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+}
+.vh-press:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  .vh-skeleton::after { display: none; }
+}
