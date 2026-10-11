@@ -52,7 +52,7 @@ export function FilterPanel({
   return (
     <Modal open={open} onClose={onClose} title="More filters" wide>
       <div className="sticky top-0 z-10 flex flex-wrap items-center gap-3 bg-menu px-5 pb-3">
-        <label className="flex h-10 min-w-[220px] flex-1 items-center gap-2 rounded-full border border-[var(--search-border)] bg-[var(--search-bg)] px-4 focus-within:border-focus">
+        <label className="flex h-10 min-w-[220px] flex-1 items-center gap-2 rounded-full border border-[var(--search-border)] bg-[var(--search-bg)] px-4 vh-field">
           <SearchIcon size={18} className="text-fg-2" />
           <input
             data-autofocus

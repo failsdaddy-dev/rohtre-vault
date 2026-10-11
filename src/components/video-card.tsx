@@ -98,8 +98,8 @@ function CardMenu({ card }: { card: Card }) {
         <MoreIcon size={20} />
       </button>
       {open && (
-        <div role="menu" className="vh-pop-in absolute right-0 top-10 z-30 w-48 origin-top-right rounded-xl bg-menu py-2 shadow-2xl ring-1 ring-line">
-          <button type="button" role="menuitem" onClick={copy} className="flex w-full items-center gap-3 px-4 py-2 text-sm hover:bg-hover">
+        <div role="menu" className="vh-pop-in absolute right-0 top-10 z-30 w-48 origin-top-right vh-menu">
+          <button type="button" role="menuitem" onClick={copy} className="vh-menu-item flex w-full items-center gap-3 text-sm">
             <LinkIcon size={18} /> Copy link
           </button>
         </div>
@@ -148,7 +148,7 @@ export const VideoCard = memo(function VideoCard({ card, kind }: { card: Card; k
   };
 
   return (
-    <article ref={root} className="group flex min-w-0 flex-col gap-3" onMouseEnter={enter} onMouseLeave={leave}>
+    <article ref={root} className="vh-offset on-hover vh-card group flex min-w-0 flex-col gap-3" onMouseEnter={enter} onMouseLeave={leave}>
       <Link
         href={href}
         aria-label={card.title}

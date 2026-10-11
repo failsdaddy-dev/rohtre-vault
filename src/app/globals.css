@@ -112,6 +112,121 @@ body {
   background: color-mix(in srgb, var(--focus) 35%, transparent);
 }
 
+/* Text fields and search bars: no hard outline inside the box. The field
+   (or the label/form wrapping it, marked .vh-field) gets a soft ring. */
+input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+.vh-field {
+  transition: border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+.vh-field:hover {
+  border-color: color-mix(in srgb, var(--fg) 30%, var(--search-border));
+}
+.vh-field:focus-within {
+  border-color: color-mix(in srgb, var(--focus) 55%, var(--search-border));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 13%, transparent);
+}
+
+/* Pop-up menus (account, card actions, filters): one rounded floating
+   panel with rounded rows; the row icon nudges on hover. */
+.vh-menu {
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--menu);
+  color: var(--fg);
+  box-shadow: 0 18px 48px -14px rgba(0, 0, 0, 0.4);
+}
+.vh-menu-item {
+  padding: 9px 12px;
+  border-radius: 12px;
+  transition: background-color var(--dur-1) var(--ease);
+}
+.vh-menu-item:hover,
+.vh-menu-item:focus-visible {
+  background: var(--hover);
+}
+.vh-menu-item:focus-visible { outline-offset: -2px; }
+.vh-menu-item > svg:first-child { transition: transform var(--dur-2) var(--ease), color var(--dur-2) var(--ease); }
+.vh-menu-item:hover > svg:first-child { transform: translateX(2px); color: var(--brand); }
+
+/* Dropdowns: rounded trigger and a rounded floating list. Uses the
+   customizable <select> where the browser supports it; elsewhere the
+   native list appears and only the trigger is styled. */
+select {
+  cursor: pointer;
+}
+@supports (appearance: base-select) {
+  select,
+  select::picker(select) {
+    appearance: base-select;
+  }
+  select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  select::picker-icon {
+    color: var(--fg-2);
+    transition: rotate var(--dur-2) var(--ease);
+  }
+  select:open::picker-icon {
+    rotate: 180deg;
+  }
+  select::picker(select) {
+    margin-top: 6px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--menu);
+    color: var(--fg);
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    translate: 0 -4px;
+    transition:
+      opacity var(--dur-2) var(--ease-out),
+      translate var(--dur-2) var(--ease-out),
+      overlay var(--dur-2) allow-discrete,
+      display var(--dur-2) allow-discrete;
+  }
+  select:open::picker(select) {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    select:open::picker(select) {
+      opacity: 0;
+      translate: 0 -4px;
+    }
+  }
+  select option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color var(--dur-1) var(--ease);
+  }
+  select option:hover,
+  select option:focus-visible {
+    background: var(--hover);
+    outline: none;
+  }
+  select option:checked {
+    font-weight: 600;
+  }
+  select option::checkmark {
+    order: 1;
+    margin-left: auto;
+    color: var(--brand);
+  }
+}
+
 /* Hide scrollbars on horizontally scrolling rows (chip bar). */
 .no-scrollbar {
   scrollbar-width: none;
@@ -170,13 +285,213 @@ body {
 .vh-fade-out { animation: vh-fade-out var(--dur-1) var(--ease) both; }
 .vh-pop-out { animation: vh-pop-out var(--dur-1) var(--ease) both; }
 
-/* Press feedback shared by buttons and chips. */
+/* Buttons and chips: on hover they lift off a solid offset block (red, or
+   the text colour on red buttons), and press back flat when clicked. An
+   outer box-shadow never paints under the button, so see-through chips stay
+   clean. Round icon buttons opt out with .no-lift. */
 .vh-press {
-  transition: transform var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+  --lift-color: var(--brand);
+  transition:
+    transform var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease);
 }
-.vh-press:active {
+.vh-press.bg-brand { --lift-color: var(--fg); }
+@media (hover: hover) {
+  .vh-press:not(.no-lift):not(:disabled):hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 3px 3px 0 var(--lift-color);
+  }
+}
+.vh-press:not(.no-lift):not(:disabled):active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 0 var(--lift-color);
+}
+.vh-press.no-lift:active {
   transform: scale(0.97);
 }
+
+/* Sidebar menu: items slide in one after another, the icon nudges on
+   hover, and a red bar grows beside the current page. */
+@keyframes vh-nav-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.vh-nav {
+  position: relative;
+  transition: background-color var(--dur-2) var(--ease);
+  animation: vh-nav-in 420ms var(--ease-out) calc(var(--i, 5) * 45ms) backwards;
+}
+.vh-nav > :first-child {
+  transition: transform var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+.vh-nav::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--brand);
+  transform: scaleY(0);
+  transition: transform var(--dur-3) var(--ease);
+}
+.vh-nav[aria-current="page"]::before { transform: scaleY(1); }
+.vh-nav[aria-current="page"] > :first-child { color: var(--brand); }
+@media (hover: hover) {
+  .vh-nav:hover > :first-child { transform: translateX(3px) scale(1.08); }
+  .vh-nav.flex-col:hover > :first-child { transform: translateY(-2px) scale(1.08); }
+}
+.vh-nav:active > :first-child { transform: scale(0.94); }
+.vh-nav:focus-visible { outline-offset: -2px; }
+
+/* Offset block: a bordered panel sitting on a solid red block (offset
+   shadow). Both layers are pseudo-elements so only opacity/transform animate.
+   Add .on-hover to show the layers only while hovered. */
+.vh-offset {
+  position: relative;
+  isolation: isolate;
+  border-radius: 18px;
+  transition: transform var(--dur-3) var(--ease);
+}
+.vh-offset::before,
+.vh-offset::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity var(--dur-3) var(--ease), transform var(--dur-3) var(--ease);
+}
+.vh-offset::before {
+  z-index: -2;
+  background: var(--brand);
+  transform: translate(7px, 7px);
+}
+.vh-offset::after {
+  z-index: -1;
+  background: var(--offset-surface, var(--bg));
+  border: 2px solid var(--fg);
+}
+.vh-offset.on-hover::before,
+.vh-offset.on-hover::after { opacity: 0; }
+.vh-offset.on-hover::before { transform: translate(0, 0); }
+@media (hover: hover) {
+  .vh-offset:hover { transform: translate(-3px, -3px); }
+  .vh-offset:hover::before { transform: translate(9px, 9px); }
+  .vh-offset.on-hover:hover::before,
+  .vh-offset.on-hover:hover::after { opacity: 1; }
+}
+
+/* Library cards: the panel reaches 10px past the card so the content keeps
+   its place in the grid. Desktop only: on phones thumbnails run edge to edge. */
+@media (min-width: 640px) {
+  .vh-card {
+    margin: -10px;
+    padding: 10px;
+    /* thumbnail radius + padding, so the corners stay concentric */
+    border-radius: calc(var(--radius-thumb) + 10px);
+  }
+  .vh-card:hover,
+  .vh-card:focus-within,
+  .vh-card:has([aria-expanded="true"]) { z-index: 10; }
+}
+@media (max-width: 639px) {
+  .vh-card,
+  .vh-card:hover { transform: none; }
+  .vh-card::before,
+  .vh-card::after { display: none; }
+}
+
+/* ------------------------------------------------------------- landing */
+:root {
+  --intro-top: #060606;
+  --intro-mid: #3a0709;
+  --intro-bottom: #e50914;
+  --intro-fg: #ffffff;
+  --intro-line: rgba(0, 0, 0, 0.45);
+  --hero-streak: rgba(255, 255, 255, 0.035);
+  --grad-to: #ff5a5f;
+}
+:root[data-theme="light"] {
+  --intro-top: #ffffff;
+  --intro-mid: #ffd9db;
+  --intro-bottom: #e50914;
+  --intro-fg: #0f0f0f;
+  --intro-line: rgba(0, 0, 0, 0.09);
+  --hero-streak: rgba(0, 0, 0, 0.035);
+  --grad-to: #ff3b3b;
+}
+
+.vh-stripes {
+  background: linear-gradient(to bottom, var(--intro-top), var(--intro-mid) 42%, var(--intro-bottom));
+}
+.vh-text-grad {
+  background: linear-gradient(90deg, var(--brand), var(--grad-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.vh-hero-bg {
+  isolation: isolate;
+  background: radial-gradient(60% 45% at 50% 110%, color-mix(in srgb, var(--brand) 28%, transparent), transparent 70%);
+}
+.vh-hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: repeating-linear-gradient(118deg, transparent 0 90px, var(--hero-streak) 90px 190px);
+  mask-image: linear-gradient(to bottom, black 45%, transparent);
+}
+
+/* Sign-in panel: the stripes drop in once, left to right. */
+.vh-panel-col { animation: vh-col-in 700ms var(--ease-out) calc(var(--i) * 80ms) both; }
+.vh-panel-text { animation: vh-route-in 600ms var(--ease-out) 450ms backwards; }
+
+/* Browser autofill: keep the field in our colours instead of pale blue. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--fg);
+  caret-color: var(--fg);
+  -webkit-box-shadow: 0 0 0 1000px var(--search-bg) inset;
+  transition: background-color 9999s;
+}
+
+/* Intro: a solid backdrop hides the page from the first frame. Stripes then
+   drop in from the top, left to right, fading in as they fall; the name
+   rises; then the stripes carry on down and fade out, left to right, and
+   the landing page is revealed underneath. */
+@keyframes vh-col-in {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes vh-col-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(100%); }
+}
+@keyframes vh-letter-in {
+  from { opacity: 0; transform: translateY(0.45em); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.vh-intro-backdrop {
+  background: var(--intro-top);
+  animation: vh-fade-out 250ms var(--ease) 2300ms forwards;
+}
+.vh-intro-col {
+  animation:
+    vh-col-in 650ms var(--ease-out) calc(var(--i) * 70ms) both,
+    vh-col-out 600ms cubic-bezier(0.55, 0, 0.45, 1) calc(2300ms + var(--i) * 60ms) forwards;
+}
+.vh-intro-letter {
+  display: inline-block;
+  animation: vh-letter-in 500ms var(--ease-out) calc(700ms + var(--i) * 35ms) both;
+}
+.vh-intro-text { animation: vh-fade-out 300ms var(--ease) 2100ms forwards; }
+.vh-hero-in { animation: vh-route-in 600ms var(--ease-out) calc(2700ms + var(--i, 0) * 90ms) backwards; }
+[data-intro-done] .vh-hero-in { animation: vh-route-in 400ms var(--ease-out) calc(var(--i, 0) * 70ms) backwards; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -188,4 +503,6 @@ body {
     scroll-behavior: auto !important;
   }
   .vh-skeleton::after { display: none; }
+  .vh-intro { display: none; }
+  .vh-hero-in { animation: none; }
 }

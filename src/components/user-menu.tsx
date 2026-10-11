@@ -42,16 +42,16 @@ export function UserMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="vh-press ml-1 grid size-10 place-items-center rounded-full"
+        className="vh-press no-lift ml-1 grid size-10 place-items-center rounded-full"
       >
         <Avatar name={user.displayName} />
       </button>
       {open && (
         <div
           role="menu"
-          className="vh-pop-in absolute right-0 top-12 z-50 w-[300px] origin-top-right overflow-hidden rounded-xl bg-menu py-2 shadow-2xl ring-1 ring-line"
+          className="vh-pop-in absolute right-0 top-12 z-50 w-[300px] origin-top-right vh-menu overflow-hidden"
         >
-          <div className="flex gap-4 border-b border-line px-4 pb-3 pt-2">
+          <div className="flex gap-4 border-b border-line px-3 pb-3 pt-2">
             <Avatar name={user.displayName} size={40} />
             <div className="min-w-0">
               <p className="truncate text-base">{user.displayName}</p>
@@ -59,13 +59,13 @@ export function UserMenu() {
               <p className="mt-1 text-xs text-fg-2">{user.role === "admin" ? "Admin" : "Editor"}</p>
             </div>
           </div>
-          <div className="py-2">
+          <div className="flex flex-col gap-0.5 pt-1.5">
             <button
               type="button"
               role="menuitemcheckbox"
               aria-checked={autoplay}
               onClick={() => updateSettings({ autoplay: !autoplay })}
-              className="flex w-full items-center gap-4 px-4 py-2 text-left hover:bg-hover"
+              className="vh-menu-item flex w-full items-center gap-4 text-left"
             >
               <AutoplayIcon />
               <span className="flex-1">
@@ -88,14 +88,14 @@ export function UserMenu() {
                 href="/admin"
                 role="menuitem"
                 onClick={close}
-                className="flex items-center gap-4 px-4 py-2 hover:bg-hover"
+                className="vh-menu-item flex items-center gap-4"
               >
                 <ShieldIcon />
                 Admin panel
               </Link>
             )}
             <form action="/auth/signout" method="post">
-              <button type="submit" role="menuitem" className="flex w-full items-center gap-4 px-4 py-2 text-left hover:bg-hover">
+              <button type="submit" role="menuitem" className="vh-menu-item flex w-full items-center gap-4 text-left">
                 <LogoutIcon />
                 Sign out
               </button>

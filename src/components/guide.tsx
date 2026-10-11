@@ -3,7 +3,7 @@
 // Left guide: 240px full, 72px mini, or a slide-in drawer on small screens (R21, R25).
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, type CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import { useCurrentSection } from "@/lib/use-browse-url";
 import { ActiveFilterList, ActiveFiltersTab } from "./active-filters";
@@ -16,7 +16,7 @@ function SectionLinks({ mini, onNavigate }: { mini: boolean; onNavigate?: () => 
   const current = useCurrentSection();
   return (
     <nav aria-label="Sections" className="flex flex-col gap-0.5">
-      {sections.map((s) => {
+      {sections.map((s, i) => {
         const Icon = SECTION_ICONS[s.kind];
         const active = current === s.slug;
         return (
@@ -25,10 +25,11 @@ function SectionLinks({ mini, onNavigate }: { mini: boolean; onNavigate?: () => 
             href={`/${s.slug}`}
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
+            style={{ "--i": i } as CSSProperties}
             className={
               mini
-                ? `flex flex-col items-center gap-1.5 rounded-[10px] py-4 text-[10px] hover:bg-hover ${active ? "font-medium" : ""}`
-                : `flex h-10 items-center gap-6 rounded-[10px] px-3 text-sm hover:bg-hover ${
+                ? `vh-nav flex flex-col items-center gap-1.5 rounded-[10px] py-4 text-[10px] hover:bg-hover ${active ? "font-medium" : ""}`
+                : `vh-nav flex h-10 items-center gap-6 rounded-[10px] px-3 text-sm hover:bg-hover ${
                     active ? "bg-chip font-medium hover:bg-chip-hover" : ""
                   }`
             }
@@ -44,15 +45,19 @@ function SectionLinks({ mini, onNavigate }: { mini: boolean; onNavigate?: () => 
 
 function AdminLink({ mini, onNavigate }: { mini: boolean; onNavigate?: () => void }) {
   const { user } = useHub();
+  const pathname = usePathname();
   if (user.role !== "admin") return null;
+  const active = pathname === "/admin" || pathname.startsWith("/admin/");
   return (
     <Link
       href="/admin"
       onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      style={{ "--i": 7 } as CSSProperties}
       className={
         mini
-          ? "flex flex-col items-center gap-1.5 rounded-[10px] py-4 text-[10px] hover:bg-hover"
-          : "flex h-10 items-center gap-6 rounded-[10px] px-3 text-sm hover:bg-hover"
+          ? `vh-nav flex flex-col items-center gap-1.5 rounded-[10px] py-4 text-[10px] hover:bg-hover ${active ? "font-medium" : ""}`
+          : `vh-nav flex h-10 items-center gap-6 rounded-[10px] px-3 text-sm hover:bg-hover ${active ? "bg-chip font-medium hover:bg-chip-hover" : ""}`
       }
     >
       <ShieldIcon />

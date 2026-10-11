@@ -68,7 +68,7 @@ export function ChipBar({ counts }: { counts: Record<string, number> }) {
   return (
     <div className="sticky top-14 z-20 bg-bg">
       <div className="relative">
-        <div ref={row} className="no-scrollbar flex gap-3 overflow-x-auto py-3" role="toolbar" aria-label="Filters">
+        <div ref={row} className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 py-3" role="toolbar" aria-label="Filters">
           <Chip on={state.filters.length === 0} onClick={clearFilters}>
             All
           </Chip>

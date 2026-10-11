@@ -7,7 +7,6 @@ export interface Viewer {
   user: CurrentUser;
   aal: "aal1" | "aal2";
   isActive: boolean;
-  mustChangePassword: boolean;
 }
 
 /** The signed-in user and their profile, or null. Uses getClaims (verified JWT). */
@@ -19,7 +18,7 @@ export async function getViewer(): Promise<Viewer | null> {
 
   const { data: p } = await sb
     .from("profiles")
-    .select("id, email, display_name, role, is_active, expires_at, must_change_password")
+    .select("id, email, display_name, role, is_active, expires_at")
     .eq("id", claims.sub)
     .maybeSingle();
   if (!p) return null;
@@ -29,16 +28,15 @@ export async function getViewer(): Promise<Viewer | null> {
     user: { id: p.id, email: p.email, displayName: p.display_name || p.email, role: p.role },
     aal: claims.aal === "aal2" ? "aal2" : "aal1",
     isActive: p.is_active && !expired,
-    mustChangePassword: p.must_change_password,
   };
 }
 
-/** For every signed-in page: login, active account, password already changed. */
-export async function requireViewer(opts: { allowPasswordChange?: boolean } = {}): Promise<Viewer> {
+/** For every signed-in page: login and an active account. Editors keep the
+ *  password the admin gave them; only the admin changes it. */
+export async function requireViewer(): Promise<Viewer> {
   const viewer = await getViewer();
   if (!viewer) redirect("/login");
   if (!viewer.isActive) redirect("/no-access");
-  if (viewer.mustChangePassword && !opts.allowPasswordChange) redirect("/account/password");
   return viewer;
 }
 

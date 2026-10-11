@@ -21,7 +21,7 @@ export function AdminFrame({ title, actions, children }: { title: string; action
   return (
     <div className="mx-auto max-w-[1280px] px-6 pb-16 max-sm:px-3">
       <title>{`${title} · Admin · RohTre Vault`}</title>
-      <nav aria-label="Admin" className="no-scrollbar sticky top-14 z-20 -mx-1 flex gap-3 overflow-x-auto bg-bg px-1 py-3">
+      <nav aria-label="Admin" className="no-scrollbar sticky top-14 z-20 -mx-1.5 flex gap-3 overflow-x-auto bg-bg px-1.5 py-3">
         {TABS.map((t) => {
           const on = t.href === "/admin" ? path === "/admin" : path.startsWith(t.href);
           return (
@@ -60,7 +60,7 @@ export function Button({ variant = "plain", className = "", ...rest }: BtnProps)
     <button
       type="button"
       {...rest}
-      className={`vh-press inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 ${look} ${className}`}
+      className={`vh-press inline-flex h-9 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 ${look} ${className}`}
     />
   );
 }
@@ -69,7 +69,7 @@ export function ButtonLink({ href, children, primary }: { href: string; children
   return (
     <Link
       href={href}
-      className={`vh-press inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium ${
+      className={`vh-press inline-flex h-9 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 text-sm font-medium ${
         primary ? "bg-chip-on-bg text-chip-on-fg hover:opacity-90" : "bg-chip hover:bg-chip-hover"
       }`}
     >
@@ -107,7 +107,7 @@ export function ConfirmButton({ onConfirm, children, confirmLabel = "Click again
   );
 }
 
-const FIELD = "w-full rounded-lg border border-[var(--search-border)] bg-[var(--search-bg)] px-3 text-sm outline-none focus:border-focus";
+const FIELD = "w-full rounded-xl border border-[var(--search-border)] bg-[var(--search-bg)] px-3 text-sm outline-none vh-field";
 
 export function Field({ label, hint, children, className = "" }: { label: string; hint?: ReactNode; children: ReactNode; className?: string }) {
   return (
@@ -128,7 +128,7 @@ export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
 }
 
 export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={`${FIELD} h-10 ${props.className ?? ""}`} />;
+  return <select {...props} className={`${FIELD.replace("rounded-xl", "rounded-full")} h-10 pl-4 pr-3 ${props.className ?? ""}`} />;
 }
 
 export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {

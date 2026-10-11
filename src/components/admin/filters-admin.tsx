@@ -109,7 +109,7 @@ export function FiltersAdmin() {
     <AdminFrame title="Filters">
       {error && <ErrorNote>{error}</ErrorNote>}
       <div className="mb-4 flex flex-wrap gap-3">
-        <label className="flex h-10 min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-[var(--search-border)] bg-[var(--search-bg)] px-3 focus-within:border-focus">
+        <label className="flex h-10 min-w-[240px] flex-1 items-center gap-2 rounded-full border border-[var(--search-border)] bg-[var(--search-bg)] px-3 vh-field">
           <SearchIcon size={18} className="text-fg-2" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${filters.length} filters`} aria-label="Search filters" className="h-full min-w-0 flex-1 bg-transparent text-sm outline-none" />
         </label>

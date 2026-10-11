@@ -35,7 +35,7 @@ export function FilterPicker({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="flex h-9 items-center gap-2 rounded-lg border border-[var(--search-border)] bg-[var(--search-bg)] px-3 focus-within:border-focus">
+      <label className="flex h-9 items-center gap-2 rounded-full border border-[var(--search-border)] bg-[var(--search-bg)] px-3 vh-field">
         <SearchIcon size={16} className="text-fg-2" />
         <input
           autoFocus={autoFocus}

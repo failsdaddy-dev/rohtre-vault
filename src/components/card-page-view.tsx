@@ -45,7 +45,7 @@ function CopyLinkButton({ card }: { card: Card }) {
         value={url}
         aria-label="Link to this card"
         onFocus={(e) => e.currentTarget.select()}
-        className="h-9 w-full rounded-lg border border-line bg-transparent px-3 text-xs text-fg-2 outline-none focus:border-focus"
+        className="h-9 w-full rounded-lg border border-line bg-transparent px-3 text-xs text-fg-2 outline-none vh-field"
       />
     </div>
   );

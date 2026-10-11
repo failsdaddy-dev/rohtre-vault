@@ -60,6 +60,7 @@ function UserForm({
   onSubmit: (d: Draft) => Promise<void>;
 }) {
   const [d, setD] = useState(initial);
+  const [neverExpires, setNeverExpires] = useState(initial.expires === "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,7 +73,7 @@ function UserForm({
         setBusy(true);
         setError(null);
         try {
-          await onSubmit(d);
+          await onSubmit(neverExpires ? { ...d, expires: "" } : d);
         } catch (err) {
           setError((err as Error).message);
           setBusy(false);
@@ -87,7 +88,7 @@ function UserForm({
           <Field label="Name">
             <Input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} placeholder="Karthikeya" />
           </Field>
-          <Field label="Temporary password" hint="Share it privately. They must change it at first sign-in." className="sm:col-span-2">
+          <Field label="Password" hint="Share it privately. The editor signs in with this password." className="sm:col-span-2">
             <div className="flex gap-2">
               <Input required minLength={10} value={d.password} onChange={(e) => setD({ ...d, password: e.target.value })} className="font-mono" />
               <Button onClick={() => setD({ ...d, password: tempPassword() })}>Generate</Button>
@@ -101,9 +102,14 @@ function UserForm({
           <Input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} />
         </Field>
       )}
-      <Field label="Account expires on" hint="Optional. The account stops working after this day.">
-        <Input type="date" value={d.expires} onChange={(e) => setD({ ...d, expires: e.target.value })} className="w-48" />
-      </Field>
+      <div className="flex flex-col gap-3">
+        <Switch checked={neverExpires} onChange={setNeverExpires} label="Never expires" />
+        {!neverExpires && (
+          <Field label="Account expires on" hint="The account stops working after this day.">
+            <Input type="date" required value={d.expires} onChange={(e) => setD({ ...d, expires: e.target.value })} className="w-48" />
+          </Field>
+        )}
+      </div>
       <div className="flex flex-col gap-3">
         <Switch checked={d.allAccess} onChange={(v) => setD({ ...d, allAccess: v })} label="All access (senior editor: sees everything)" />
         {!d.allAccess && (
@@ -200,7 +206,6 @@ export function UsersAdmin() {
                   <td>
                     <p className="font-medium">{u.display_name || "—"}</p>
                     <p className="text-xs text-fg-2">{u.email}</p>
-                    {u.must_change_password && <p className="text-xs text-fg-2">Hasn’t set their own password yet</p>}
                   </td>
                   <td>{u.role === "admin" ? "Admin" : "Editor"}</td>
                   <td>
@@ -252,7 +257,7 @@ export function UsersAdmin() {
                 expires_at: fromDateInput(d.expires),
               });
               setCreating(false);
-              toast("User created. Share the email and temporary password with them privately.");
+              toast("User created. Share the email and password with them privately.");
               load();
             }}
           />
@@ -291,7 +296,7 @@ export function UsersAdmin() {
         {reset && (
           <div className="flex flex-col gap-4 px-5 pb-5">
             <p className="text-sm">
-              New temporary password for <b>{reset.user.email}</b>. They must change it at their next sign-in.
+              New password for <b>{reset.user.email}</b>. Share it privately; the old one stops working.
             </p>
             <div className="flex gap-2">
               <Input value={reset.password} onChange={(e) => setReset({ ...reset, password: e.target.value })} className="font-mono" minLength={10} />

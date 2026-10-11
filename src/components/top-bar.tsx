@@ -5,18 +5,13 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useBrowseUrl } from "@/lib/use-browse-url";
 import { updateSettings, useSettings } from "@/lib/settings";
 import { useHub } from "./hub-context";
-import { BackIcon, CloseIcon, MenuIcon, MoonIcon, SearchIcon, SunIcon } from "./icons";
+import { BackIcon, CloseIcon, MenuIcon, MoonIcon, SearchIcon, SunIcon, VaultLogo } from "./icons";
 import { UserMenu } from "./user-menu";
 
 export function Wordmark() {
   return (
     <span className="flex items-center gap-2 select-none">
-      <span
-        aria-hidden="true"
-        className="grid size-7 place-items-center rounded-lg bg-brand text-[13px] font-bold text-brand-fg"
-      >
-        R
-      </span>
+      <VaultLogo size={30} />
       <span className="text-[19px] font-semibold tracking-[-0.03em]">
         RohTre <span className="font-light">Vault</span>
       </span>
@@ -69,7 +64,7 @@ export function IconButton({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className={`vh-press grid size-10 shrink-0 place-items-center rounded-full hover:bg-hover active:bg-press ${className}`}
+      className={`vh-press no-lift grid size-10 shrink-0 place-items-center rounded-full hover:bg-hover active:bg-press ${className}`}
     >
       {children}
     </button>
@@ -99,8 +94,12 @@ function SearchForm({ autoFocus, onDone }: { autoFocus?: boolean; onDone?: () =>
   };
 
   return (
-    <form role="search" onSubmit={submit} className="group flex w-full max-w-[640px] items-center">
-      <div className="flex h-10 min-w-0 flex-1 items-center rounded-l-full border border-[var(--search-border)] bg-[var(--search-bg)] pl-4 focus-within:border-focus">
+    <form
+      role="search"
+      onSubmit={submit}
+      className="vh-field group flex h-10 w-full max-w-[640px] items-center overflow-hidden rounded-full border border-[var(--search-border)] bg-[var(--search-bg)]"
+    >
+      <div className="flex h-full min-w-0 flex-1 items-center pl-4">
         <SearchIcon size={18} className="mr-2 hidden shrink-0 text-fg-2 group-focus-within:block" />
         <input
           ref={input}
@@ -131,7 +130,7 @@ function SearchForm({ autoFocus, onDone }: { autoFocus?: boolean; onDone?: () =>
         type="submit"
         aria-label="Search"
         title="Search"
-        className="grid h-10 w-16 shrink-0 place-items-center rounded-r-full border border-l-0 border-[var(--search-border)] bg-[var(--search-btn)] hover:bg-chip-hover"
+        className="grid h-full w-16 shrink-0 place-items-center border-l border-[var(--search-border)] bg-[var(--search-btn)] transition-colors duration-[var(--dur-1)] hover:bg-chip-hover"
       >
         <SearchIcon size={22} />
       </button>

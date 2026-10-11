@@ -106,8 +106,8 @@ export function ActiveFiltersTab({ mini }: { mini: boolean }) {
         onClick={() => (open ? setOpen(false) : show())}
         className={
           mini
-            ? "flex w-full flex-col items-center gap-1.5 rounded-[10px] py-4 text-[10px] hover:bg-hover"
-            : "flex h-10 w-full items-center gap-6 rounded-[10px] px-3 text-sm hover:bg-hover"
+            ? "vh-nav flex w-full flex-col items-center gap-1.5 rounded-[10px] py-4 text-[10px] hover:bg-hover"
+            : "vh-nav flex h-10 w-full items-center gap-6 rounded-[10px] px-3 text-sm hover:bg-hover"
         }
       >
         <span className="relative">
@@ -126,7 +126,7 @@ export function ActiveFiltersTab({ mini }: { mini: boolean }) {
           role="region"
           aria-label="Active filters"
           style={{ top: pos.top, left: pos.left }}
-          className="vh-pop-in fixed z-50 max-h-[300px] w-64 origin-left overflow-y-auto rounded-xl bg-menu p-2 shadow-2xl ring-1 ring-line"
+          className="vh-pop-in fixed z-50 max-h-[300px] w-64 origin-left overflow-y-auto vh-menu"
         >
           <p className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-wider text-fg-2">
             Applied filters

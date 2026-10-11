@@ -28,11 +28,13 @@ Quick tagging: in **Cards**, right-click any row to tick filters in place.
 - A group can be deleted only when it has no filters.
 
 ## Users
-- **Add user:** email, name, temporary password (Generate), and either
-  **All access** or the filters they may see. Optional expiry date.
-  Share the login privately; they must set their own password at first sign-in.
+- **Add user:** email, name, password (Generate), and either
+  **All access** or the filters they may see. **Never expires** is on by
+  default; switch it off to pick the last day the account works.
+  Share the login privately. Editors keep this password; only the admin
+  can change it.
 - **Disable:** locks them out immediately. **Delete:** removes the login.
-- **Reset password:** gives a new temporary password.
+- **Reset password:** sets a new password; the old one stops working.
 
 ## Audit log
 Sign-ins, every link open (with the card and label), refused opens and admin

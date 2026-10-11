@@ -4,7 +4,7 @@
 //   delete           -> removes the login and profile
 //   set_access       -> { all_access, filter_ids[] }
 //   update           -> { display_name?, expires_at? (ISO or null) }
-//   reset_password   -> { password } and require a change at next sign-in
+//   reset_password   -> { password } (the editor signs in with it)
 import { admin, audit, corsHeaders, getCaller, isAdmin, isUuid, json, readJson } from "../_shared/common.ts";
 
 const FOREVER = "876000h"; // ~100 years
@@ -68,10 +68,9 @@ Deno.serve(async (req) => {
     }
     case "reset_password": {
       const password = typeof b?.password === "string" ? b.password : "";
-      if (password.length < 10) return json(req, { error: "The temporary password needs at least 10 characters." }, 400);
+      if (password.length < 10) return json(req, { error: "The password needs at least 10 characters." }, 400);
       const { error } = await admin.auth.admin.updateUserById(userId, { password });
       if (error) return json(req, { error: "Couldn't reset the password." }, 500);
-      await admin.from("profiles").update({ must_change_password: true }).eq("id", userId);
       break;
     }
     default:

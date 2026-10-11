@@ -126,7 +126,7 @@ export function CardActions({
         <div
           role="menu"
           aria-label={menu.kind === "project" ? "Project files" : "Downloads"}
-          className={`vh-pop-in absolute top-full z-30 mt-2 w-56 rounded-xl bg-menu py-2 shadow-2xl ring-1 ring-line ${
+          className={`vh-pop-in absolute top-full z-30 mt-2 w-56 vh-menu ${
             menu.kind === "project" ? "left-1/3 -translate-x-1/4 origin-top" : "right-0 origin-top-right"
           }`}
         >
@@ -136,7 +136,7 @@ export function CardActions({
               type="button"
               role="menuitem"
               onClick={() => openLink(l)}
-              className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-hover"
+              className="vh-menu-item flex w-full items-center gap-3 text-left text-sm"
             >
               {menu.kind === "project" ? <FolderIcon size={18} /> : <DownloadIcon size={18} />}
               <span className="truncate">{l.label}</span>

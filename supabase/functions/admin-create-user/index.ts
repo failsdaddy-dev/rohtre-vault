@@ -1,6 +1,6 @@
 // POST { email, password, display_name?, all_access?, filter_ids?, expires_at? }
 // Admin only (active admin + 2FA session). Creates a confirmed login; the
-// editor must change the temporary password at first sign-in.
+// editor signs in with the password the admin sets here.
 import { admin, audit, corsHeaders, getCaller, isAdmin, isUuid, json, readJson } from "../_shared/common.ts";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
   const expiresAt = typeof b?.expires_at === "string" && b.expires_at ? new Date(b.expires_at) : null;
 
   if (!EMAIL.test(email)) return json(req, { error: "Enter a valid email address." }, 400);
-  if (password.length < 10) return json(req, { error: "The temporary password needs at least 10 characters." }, 400);
+  if (password.length < 10) return json(req, { error: "The password needs at least 10 characters." }, 400);
   if (expiresAt && Number.isNaN(expiresAt.getTime())) return json(req, { error: "The expiry date isn't valid." }, 400);
 
   const { data, error } = await admin.auth.admin.createUser({
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
       display_name: displayName,
       all_access: allAccess,
       expires_at: expiresAt?.toISOString() ?? null,
-      must_change_password: true,
+      must_change_password: false,
     })
     .eq("id", id);
   if (pErr) {

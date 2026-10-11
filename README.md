@@ -73,6 +73,12 @@ needs an interactive terminal). Never paste keys or passwords into chat.
    and run it. A red message `RLS TEST RESULTS: 50 passed, 0 failed` is the
    success case; it rolls all test data back.
 
+## Deploy on Vercel
+
+See [docs/deploy-vercel.md](docs/deploy-vercel.md): import the GitHub repo,
+add the two `NEXT_PUBLIC_SUPABASE_*` variables, deploy, then set the Supabase
+Auth URLs and the `ALLOWED_ORIGINS` secret to the live address.
+
 ## How access works
 
 - Nothing is readable without signing in. Disabled or expired accounts lose

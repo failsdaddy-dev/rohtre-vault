@@ -98,7 +98,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="vh-press grid size-10 shrink-0 place-items-center rounded-full hover:bg-hover"
+            className="vh-press no-lift grid size-10 shrink-0 place-items-center rounded-full hover:bg-hover"
           >
             <CloseIcon />
           </button>

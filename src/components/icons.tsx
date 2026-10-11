@@ -98,6 +98,40 @@ export const LogoutIcon = (p: P) => (
 export const LockIcon = (p: P) => (
   <Svg {...p}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></Svg>
 );
+/** Brand mark: a safe with a red dial and a red shield. Outlines follow the
+ *  text colour and fills follow the theme, so it works in dark and light. */
+export const VaultLogo = ({ size = 32, className }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" focusable="false" className={className}>
+    <g stroke="var(--fg)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="12" y="50" width="10" height="8" rx="2" fill="var(--fg)" />
+      <rect x="36" y="50" width="10" height="8" rx="2" fill="var(--fg)" />
+      <rect x="5" y="5" width="50" height="47" rx="10" fill="var(--bg-elev)" />
+      <rect x="11.5" y="11.5" width="37" height="34" rx="5" fill="var(--bg)" />
+      <circle cx="23.5" cy="28.5" r="8.5" fill="var(--brand)" />
+      <path d="M23.5 20v17M15 28.5h17M17.5 22.5l12 12M29.5 22.5l-12 12" strokeWidth="2" />
+      <circle cx="23.5" cy="28.5" r="2.6" fill="var(--bg)" strokeWidth="2" />
+      <circle cx="40" cy="24" r="3.2" fill="var(--fg)" />
+      <path d="M40 27v9" />
+      <path d="M50 33.5l10 4v7.5c0 6.2-4.3 10.6-10 12.6-5.7-2-10-6.4-10-12.6v-7.5z" fill="var(--brand)" />
+      <path d="M45.6 46.2l3 3 5.8-6" stroke="#fff" strokeWidth="3" fill="none" />
+    </g>
+  </svg>
+);
+export const MailIcon = (p: P) => (
+  <Svg {...p}><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m4 7 8 6 8-6" /></Svg>
+);
+export const EyeIcon = (p: P) => (
+  <Svg {...p}><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" /><circle cx="12" cy="12" r="3" /></Svg>
+);
+export const EyeOffIcon = (p: P) => (
+  <Svg {...p}><path d="M10.6 5.6A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.6 6.6C3.9 8.3 2.5 12 2.5 12S6 18.5 12 18.5c1.9 0 3.5-.6 4.9-1.5M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18" /></Svg>
+);
+export const KeyIcon = (p: P) => (
+  <Svg {...p}><circle cx="8" cy="15" r="4" /><path d="m11 12 9-9M17 6l3 3M14 9l2 2" /></Svg>
+);
+export const ArrowRightIcon = (p: P) => (
+  <Svg {...p}><path d="M5 12h14M13 6l6 6-6 6" /></Svg>
+);
 export const AutoplayIcon = (p: P) => (
   <Svg {...p}><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M10 9.5v5l4-2.5-4-2.5Z" fill="currentColor" stroke="none" /></Svg>
 );
