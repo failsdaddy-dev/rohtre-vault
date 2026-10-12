@@ -3,6 +3,7 @@
 // Real data. Every read runs as the signed-in user, so RLS decides what comes
 // back. Mega URLs are never selected: card_links.url isn't even granted.
 
+import { parseAudioPreview, parsePreviewClip } from "./cloudinary-url";
 import type { DataSource } from "./data-source";
 import { supabaseBrowser } from "./supabase/client";
 import type { Card } from "./types";
@@ -13,13 +14,13 @@ type CardRow = {
   slug: string;
   title: string;
   description: string;
-  youtube_id: string | null;
-  preview_start: number;
-  preview_end: number | null;
+  media_type: "youtube" | "audio";
   loom_url: string | null;
   source_url: string | null;
   has_project_files: boolean;
   has_downloads: boolean;
+  preview_clip: unknown;
+  audio_preview: unknown;
   filter_slugs: string[];
   sort_ts: string;
 };
@@ -31,13 +32,13 @@ function toCard(r: CardRow): Card {
     slug: r.slug,
     title: r.title,
     description: r.description,
-    youtubeId: r.youtube_id,
-    previewStart: r.preview_start,
-    previewEnd: r.preview_end,
+    mediaType: r.media_type ?? "youtube",
     loomUrl: r.loom_url,
     sourceUrl: r.source_url,
     hasProjectFiles: r.has_project_files,
     hasDownloads: r.has_downloads,
+    previewClip: parsePreviewClip(r.preview_clip),
+    audioPreview: parseAudioPreview(r.audio_preview),
     filterSlugs: r.filter_slugs ?? [],
     publishedAt: r.sort_ts,
   };
@@ -110,7 +111,7 @@ export const supabaseSource: DataSource = {
     const { data, error } = await supabaseBrowser()
       .from("cards")
       .select(
-        "id, slug, title, description, youtube_id, preview_start, preview_end, loom_url, source_url, has_project_files, has_downloads, published_at, created_at, sections!inner(slug), card_filters(filters(slug))",
+        "id, slug, title, description, media_type, loom_url, source_url, has_project_files, has_downloads, preview_clip, audio_preview, published_at, created_at, sections!inner(slug), card_filters(filters(slug))",
       )
       .eq("sections.slug", section)
       .eq("slug", slug)
@@ -146,5 +147,9 @@ export const supabaseSource: DataSource = {
     });
     if (error || !data?.url) throw error ?? new Error("No link");
     return data.url;
+  },
+
+  audioSrc(card) {
+    return card.audioPreview?.url ?? null;
   },
 };

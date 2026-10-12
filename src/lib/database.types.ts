@@ -132,6 +132,7 @@ export type Database = {
       }
       cards: {
         Row: {
+          audio_preview: Json | null
           created_at: string
           created_by: string | null
           description: string
@@ -140,6 +141,8 @@ export type Database = {
           has_project_files: boolean
           id: string
           loom_url: string | null
+          media_type: Database["public"]["Enums"]["media_type"]
+          preview_clip: Json | null
           preview_end: number | null
           preview_start: number
           published_at: string | null
@@ -154,6 +157,7 @@ export type Database = {
           youtube_id: string | null
         }
         Insert: {
+          audio_preview?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string
@@ -162,6 +166,8 @@ export type Database = {
           has_project_files?: boolean
           id?: string
           loom_url?: string | null
+          media_type?: Database["public"]["Enums"]["media_type"]
+          preview_clip?: Json | null
           preview_end?: number | null
           preview_start?: number
           published_at?: string | null
@@ -176,6 +182,7 @@ export type Database = {
           youtube_id?: string | null
         }
         Update: {
+          audio_preview?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string
@@ -184,6 +191,8 @@ export type Database = {
           has_project_files?: boolean
           id?: string
           loom_url?: string | null
+          media_type?: Database["public"]["Enums"]["media_type"]
+          preview_clip?: Json | null
           preview_end?: number | null
           preview_start?: number
           published_at?: string | null
@@ -420,12 +429,15 @@ export type Database = {
           p_sort?: string
         }
         Returns: {
+          audio_preview: Json
           description: string
           filter_slugs: string[]
           has_downloads: boolean
           has_project_files: boolean
           id: string
           loom_url: string
+          media_type: Database["public"]["Enums"]["media_type"]
+          preview_clip: Json
           preview_end: number
           preview_start: number
           section_slug: string
@@ -454,6 +466,7 @@ export type Database = {
     Enums: {
       card_status: "draft" | "published"
       link_kind: "project" | "download"
+      media_type: "youtube" | "audio"
       section_kind: "effect" | "music" | "sound" | "font" | "text"
       user_role: "admin" | "editor"
     }
@@ -585,6 +598,7 @@ export const Constants = {
     Enums: {
       card_status: ["draft", "published"],
       link_kind: ["project", "download"],
+      media_type: ["youtube", "audio"],
       section_kind: ["effect", "music", "sound", "font", "text"],
       user_role: ["admin", "editor"],
     },

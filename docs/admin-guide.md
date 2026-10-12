@@ -3,8 +3,22 @@
 ## Add a card
 1. **Admin → Cards → New card.**
 2. Title (the link name fills itself in; you can edit it), section, description.
-3. **Preview:** paste the unlisted YouTube link, set start and end seconds
-   (3–8 seconds works best), press **Test preview**.
+3. **Video cards:**
+   under *Preview clip* click **Choose video**
+   and pick the effect file itself (any size, MP4 or MOV). Drag **Start at**
+   to the best moment, choose 6, 8 or 10 s, press **Make preview** (about a
+   minute; the first time also loads a 32 MB video tool), check it, then
+   **Use this preview**. Only the small preview (under 2 MB) is uploaded; it
+   loops silently on the card with no player buttons; clicking the card
+   shows it bigger with the card's buttons.
+   **Music cards:** under **Media** choose **Audio (MP3)**, then **Choose
+   track** and pick the full song (any size: MP3, WAV, M4A, FLAC). Drag the
+   red 30-second window over the waveform (or use **Start at**), press
+   **Listen to this part**, then **Make preview** (a few seconds) and **Use
+   this preview**. Only the 30-second MP3 (about 0.5 MB) is uploaded. **Test
+   play** plays it in the site's player. Put the full track under **Downloads** (Mega). **Replace file** or
+   **✕** swaps or removes a preview; the old file leaves Cloudinary when you
+   save. Setup once: docs/cloudinary-setup.md.
 4. **Tutorial:** paste the Loom share link. Leave it empty if it isn't
    recorded yet; the Tutorial button then shows greyed out.
 5. **Project files:** one Mega link per software, each with a label
@@ -40,14 +54,6 @@ Quick tagging: in **Cards**, right-click any row to tick filters in place.
 Sign-ins, every link open (with the card and label), refused opens and admin
 changes. The Cards list shows how often each card's links were opened.
 
-## Two-factor sign-in (Admin → 2FA)
-- **Switch on:** scan the QR code with an authenticator app and enter the
-  6-digit code. From then on every admin sign-in asks for a code, and admin
-  tools stay locked until it's entered.
-- **Get a new QR code:** for a new phone. Scan the new code and confirm it;
-  only then does the old one stop working.
-- **Switch off:** asks you to confirm. Admin then needs only the password.
-  Keep it on unless you have a reason.
-- Lost your phone? In the Supabase SQL editor run
-  `delete from auth.mfa_factors where user_id = (select id from auth.users where email = 'you@example.com');`
-  then set 2FA up again.
+## Sign-in
+Email and password only (2FA was removed on 2026-10-12). Use a strong admin
+password and don't share it: anyone with it can open the admin tools.

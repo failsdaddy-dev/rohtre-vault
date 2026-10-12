@@ -5,7 +5,6 @@ import type { CurrentUser } from "./types";
 
 export interface Viewer {
   user: CurrentUser;
-  aal: "aal1" | "aal2";
   isActive: boolean;
 }
 
@@ -26,7 +25,6 @@ export async function getViewer(): Promise<Viewer | null> {
   const expired = p.expires_at !== null && new Date(p.expires_at) <= new Date();
   return {
     user: { id: p.id, email: p.email, displayName: p.display_name || p.email, role: p.role },
-    aal: claims.aal === "aal2" ? "aal2" : "aal1",
     isActive: p.is_active && !expired,
   };
 }
@@ -40,18 +38,9 @@ export async function requireViewer(): Promise<Viewer> {
   return viewer;
 }
 
-/**
- * Admin pages. If the admin has 2FA switched on but this session hasn't
- * entered the code yet, they're sent to enter it first. The database applies
- * the same rule to every admin write.
- */
-export async function requireAdmin(opts: { allowAal1?: boolean } = {}): Promise<Viewer> {
+/** Admin pages. The database applies the same rule to every admin write. */
+export async function requireAdmin(): Promise<Viewer> {
   const viewer = await requireViewer();
   if (viewer.user.role !== "admin") notFound();
-  if (viewer.aal !== "aal2" && !opts.allowAal1) {
-    const sb = await supabaseServer();
-    const { data } = await sb.auth.mfa.listFactors();
-    if (data?.totp?.some((f) => f.status === "verified")) redirect("/admin/security");
-  }
   return viewer;
 }

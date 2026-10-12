@@ -55,7 +55,6 @@ needs an interactive terminal). Never paste keys or passwords into chat.
 
 4. **Auth settings** (Dashboard → Authentication):
    - Sign In / Providers: *Allow new users to sign up* **off**, anonymous sign-ins **off**.
-   - Multi-Factor: **TOTP (authenticator app)** enabled.
    - URL Configuration: Site URL `http://localhost:3000` for now.
 
 5. **First admin** – Authentication → Users → *Add user* → *Create new user*
@@ -65,9 +64,7 @@ needs an interactive terminal). Never paste keys or passwords into chat.
       set role = 'admin', all_access = true, must_change_password = false
     where email = 'you@example.com';
    ```
-   Sign in at http://localhost:3000/login. Open **Admin → 2FA**, scan the QR
-   code with an authenticator app and enter the code. Admin tools unlock only
-   in a 2FA-verified session (the database enforces this).
+   Sign in at http://localhost:3000/login with that email and password.
 
 6. **Access tests** – paste `supabase/tests/rls_test.sql` into the SQL editor
    and run it. A red message `RLS TEST RESULTS: 50 passed, 0 failed` is the
@@ -89,8 +86,8 @@ Auth URLs and the `ALLOWED_ORIGINS` secret to the live address.
   links alike.
 - Mega links never reach the browser until a click. `get-asset-link` checks
   access, writes the audit log, then returns the one link.
-- Admin writes require an active admin, plus a code-verified session while
-  admin 2FA is switched on (Admin → 2FA).
+- Admin writes require an active, unexpired admin profile (email + password
+  sign-in; there is no 2FA).
 
 ## Folders
 

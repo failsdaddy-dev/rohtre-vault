@@ -56,4 +56,4 @@ Claude then:
       set role = 'admin', all_access = true, must_change_password = false
     where email = 'you@example.com';
    ```
-4. When you first sign in to the admin panel, the app asks you to set up an authenticator app (2FA). Admin features stay locked until you do.
+4. Sign in with that email and password. There is no 2FA step.

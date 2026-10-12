@@ -71,6 +71,21 @@ export const TuneIcon = (p: P) => (
 export const PlayIcon = (p: P) => (
   <Svg {...p}><path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor" stroke="none" /></Svg>
 );
+export const PauseIcon = (p: P) => (
+  <Svg {...p}><path d="M8 5h3v14H8zM13 5h3v14h-3z" fill="currentColor" stroke="none" /></Svg>
+);
+export const LoopIcon = (p: P) => (
+  <Svg {...p}><path d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4" /></Svg>
+);
+export const VolumeIcon = (p: P) => (
+  <Svg {...p}><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4v-5ZM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /></Svg>
+);
+export const VolumeOffIcon = (p: P) => (
+  <Svg {...p}><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4v-5ZM16 9.5l5 5M21 9.5l-5 5" /></Svg>
+);
+export const UploadIcon = (p: P) => (
+  <Svg {...p}><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15" /></Svg>
+);
 export const FolderIcon = (p: P) => (
   <Svg {...p}><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" /></Svg>
 );
@@ -126,14 +141,8 @@ export const EyeIcon = (p: P) => (
 export const EyeOffIcon = (p: P) => (
   <Svg {...p}><path d="M10.6 5.6A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.6 6.6C3.9 8.3 2.5 12 2.5 12S6 18.5 12 18.5c1.9 0 3.5-.6 4.9-1.5M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18" /></Svg>
 );
-export const KeyIcon = (p: P) => (
-  <Svg {...p}><circle cx="8" cy="15" r="4" /><path d="m11 12 9-9M17 6l3 3M14 9l2 2" /></Svg>
-);
 export const ArrowRightIcon = (p: P) => (
   <Svg {...p}><path d="M5 12h14M13 6l6 6-6 6" /></Svg>
-);
-export const AutoplayIcon = (p: P) => (
-  <Svg {...p}><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M10 9.5v5l4-2.5-4-2.5Z" fill="currentColor" stroke="none" /></Svg>
 );
 
 export const SECTION_ICONS = {

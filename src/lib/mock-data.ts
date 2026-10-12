@@ -48,9 +48,6 @@ export const FILTERS: Filter[] = [...base, ...sampleChannels].map(([groupId, slu
   isQuick,
 }));
 
-// The YouTube IFrame API reference uses this public video in its examples.
-// verified: https://developers.google.com/youtube/iframe_api_reference
-const DEMO_VIDEO = "M7lc1UVf-VE";
 
 type Seed = [section: string, title: string, filters: string[], opts?: Partial<Card>];
 
@@ -127,23 +124,77 @@ function slugify(s: string): string {
 
 const start = Date.parse("2026-10-09T12:00:00Z");
 
+// Sample mode: video cards loop Cloudinary's public demo clip; audio cards
+// play a short tone generated in the browser.
+export const SAMPLE_TONE_SECONDS = 12;
+const SAMPLE_CLIP = {
+  url: "https://res.cloudinary.com/demo/video/upload/dog.mp4",
+  public_id: "rohtre-vault/previews/sample",
+  version: 1,
+  format: "mp4",
+  bytes: 1_500_000,
+  duration: 10,
+};
+const SAMPLE_AUDIO = {
+  url: "https://res.cloudinary.com/demo/video/upload/sample.mp3",
+  version: 1,
+  format: "mp3",
+  bytes: 600_000,
+  duration: SAMPLE_TONE_SECONDS,
+};
+
+function samplePeaks(seed: number): number[] {
+  return Array.from({ length: 120 }, (_, k) => 0.25 + 0.7 * Math.abs(Math.sin((k + seed * 7) * 0.21) * Math.cos(k * 0.047)));
+}
+
+const toneCache = new Map<string, string>();
+
+/** A WAV tone (two notes per card) as a blob URL, built in the browser. */
+export function sampleToneUrl(cardId: string): string {
+  const hit = toneCache.get(cardId);
+  if (hit) return hit;
+  const rate = 22050;
+  const n = rate * SAMPLE_TONE_SECONDS;
+  const buf = new ArrayBuffer(44 + n * 2);
+  const v = new DataView(buf);
+  const str = (o: number, t: string) => [...t].forEach((c, k) => v.setUint8(o + k, c.charCodeAt(0)));
+  str(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); str(8, "WAVE"); str(12, "fmt ");
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, "data"); v.setUint32(40, n * 2, true);
+  const base = 220 + (parseInt(cardId.replace(/\D/g, ""), 10) % 8) * 30;
+  for (let k = 0; k < n; k++) {
+    const t = k / rate;
+    const f = Math.floor(t * 2) % 2 ? base * 1.5 : base;
+    const env = Math.min(1, (t % 0.5) * 20) * Math.exp(-(t % 0.5) * 4);
+    v.setInt16(44 + k * 2, Math.sin(2 * Math.PI * f * t) * env * 9000, true);
+  }
+  const url = URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+  toneCache.set(cardId, url);
+  return url;
+}
+
 export const CARDS: Card[] = seeds.map(([section, title, filters, opts], i) => {
   const kind = SECTIONS.find((s) => s.slug === section)!.kind;
-  const hasVideo = i % 3 === 0;
+  const audio = kind === "music" || (kind === "sound" && i % 2 === 0);
   return {
     id: `c-${String(i + 1).padStart(3, "0")}`,
     sectionSlug: section,
     slug: slugify(title),
     title,
     description: descriptions[kind],
-    youtubeId: hasVideo ? DEMO_VIDEO : null,
-    previewStart: hasVideo ? 10 + (i % 4) * 5 : 0,
-    previewEnd: hasVideo ? 16 + (i % 4) * 5 : null,
+    mediaType: audio ? "audio" : "youtube",
     // Some tutorials are "not recorded yet" so their buttons show greyed out.
     loomUrl: i % 4 === 3 ? null : "https://www.loom.com/share/0000000000000000000000000000demo",
     sourceUrl: null,
     hasProjectFiles: kind !== "music" && kind !== "sound" && i % 5 !== 4,
     hasDownloads: i % 6 !== 5,
+    // Sample clips come from Cloudinary's public demo account.
+    previewClip: !audio && i % 3 !== 2 ? SAMPLE_CLIP : null,
+    audioPreview:
+      audio && i % 5 !== 4
+        ? { ...SAMPLE_AUDIO, public_id: `rohtre-vault/music/sample-${i}`, peaks: samplePeaks(i) }
+        : null,
     filterSlugs: [...filters].sort(),
     publishedAt: new Date(start - i * 7.5 * 3600_000).toISOString(),
     ...opts,

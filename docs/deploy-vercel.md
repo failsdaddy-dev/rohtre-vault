@@ -49,7 +49,7 @@ Replace `https://rohtre-vault.vercel.app` with your real address.
    ```
 
 ## 5. Check the live site
-- Landing page plays the intro, `/login` signs in, admin asks the 2FA code once.
+- Landing page plays the intro, `/login` signs in with email and password.
 - Open a card's Project files / Download (needs step 4.2).
 - Admin → Users → Add user works (needs step 4.2).
 - Run `supabase/tests/rls_test.sql` in the SQL editor: 50 passed, 0 failed.

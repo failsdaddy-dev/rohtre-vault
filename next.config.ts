@@ -1,19 +1,23 @@
 import type { NextConfig } from "next";
 
 // Content Security Policy (production only; `next dev` needs eval for hot reload).
-// Allows only this app, Supabase, and the YouTube/Loom embeds (R9: no other
-// third-party scripts). Inline scripts are needed by Next.js and the theme boot.
+// Allows only this app, Supabase, the Loom embed (R9: no other
+// third-party scripts), and Cloudinary for preview files: admin uploads go to
+// api.cloudinary.com; clips, stills and music previews come from
+// res.cloudinary.com. Inline scripts are needed by Next.js and the theme boot.
 const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseWs = supabase.replace(/^https:/, "wss:");
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.youtube.com",
+  // 'wasm-unsafe-eval' + worker-src: the admin's in-browser video tool (ffmpeg.wasm, served from /ffmpeg).
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https://i.ytimg.com",
+  "img-src 'self' data: https://res.cloudinary.com",
   "font-src 'self'",
-  `connect-src 'self' ${supabase} ${supabaseWs}`.trim(),
-  "frame-src https://www.youtube.com https://www.loom.com",
-  "media-src 'self'",
+  `connect-src 'self' ${supabase} ${supabaseWs} https://api.cloudinary.com`.trim(),
+  "frame-src https://www.loom.com",
+  "media-src 'self' blob: https://res.cloudinary.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -35,7 +39,9 @@ const nextConfig: NextConfig = {
   images: {
     // YouTube thumbnails are already small; serve them straight from YouTube.
     unoptimized: true,
-    remotePatterns: [{ protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
+    ],
   },
   async headers() {
     return [

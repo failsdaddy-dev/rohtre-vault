@@ -1,7 +1,7 @@
 "use client";
 
 // Admin data access. Everything runs as the signed-in admin; the database
-// refuses all of it unless the session is an active admin with 2FA.
+// refuses all of it unless the session is an active admin.
 
 import { supabaseBrowser } from "./supabase/client";
 import type { Database, Json } from "./database.types";
@@ -60,7 +60,16 @@ export async function getCardLinks(cardId: string): Promise<EditableLink[]> {
 
 export type CardInput = Pick<
   CardRow,
-  "section_id" | "slug" | "title" | "description" | "youtube_id" | "preview_start" | "preview_end" | "loom_url" | "source_url" | "status"
+  | "section_id"
+  | "slug"
+  | "title"
+  | "description"
+  | "media_type"
+  | "preview_clip"
+  | "audio_preview"
+  | "loom_url"
+  | "source_url"
+  | "status"
 >;
 
 export async function saveCard(id: string | null, input: CardInput, filterIds: string[], links: EditableLink[]) {
@@ -82,7 +91,41 @@ export async function setCardFilters(cardId: string, filterIds: string[]) {
 }
 
 export async function deleteCard(id: string) {
+  // Remember the card's preview files first, so they leave Cloudinary too.
+  const { data } = await sb().from("cards").select("preview_clip, audio_preview").eq("id", id).maybeSingle();
   check(await sb().from("cards").delete().eq("id", id));
+  for (const f of [data?.preview_clip, data?.audio_preview]) {
+    const pid = (f as { public_id?: string } | null)?.public_id;
+    if (pid) await deletePreviewFile(pid).catch(() => {});
+  }
+}
+
+// ---------------------------------------------------------- preview files
+// Cloudinary holds only short previews (the real files stay on Mega). The
+// admin's browser uploads them directly with a signature from the admin-only
+// cloudinary-sign-upload function; the card stores the file's details.
+
+export type PreviewKind = "video" | "audio";
+
+export interface UploadTicket {
+  upload_url: string;
+  api_key: string;
+  signature: string;
+  max_mb: number;
+  max_seconds: number;
+  params: Record<string, string | number>;
+}
+
+export async function signPreviewUpload(kind: PreviewKind): Promise<UploadTicket> {
+  const { data, error } = await sb().functions.invoke<UploadTicket & { error?: string }>("cloudinary-sign-upload", { body: { kind } });
+  if (error || !data?.signature) throw new Error(data?.error ?? "Couldn’t start the upload. Is Cloudinary set up (see docs/cloudinary-setup.md)?");
+  return data;
+}
+
+/** Removes a preview from Cloudinary. The server refuses files a card still uses. */
+export async function deletePreviewFile(publicId: string): Promise<void> {
+  const { error } = await sb().functions.invoke("cloudinary-delete-preview", { body: { public_id: publicId } });
+  if (error) throw error;
 }
 
 export async function setCardStatus(id: string, status: CardRow["status"]) {

@@ -19,7 +19,7 @@ import {
   type GroupRow,
   type SectionRow,
 } from "@/lib/admin-api";
-import { thumbnailUrl } from "@/lib/youtube";
+import { clipPosterUrl, parsePreviewClip } from "@/lib/cloudinary-url";
 import { ChevronDown, ChevronLeft, SearchIcon } from "../icons";
 import { useDismiss } from "../popover";
 import { useToast } from "../toast";
@@ -197,7 +197,7 @@ export function CardsAdmin() {
                   <td>
                     <div className="flex min-w-[260px] items-center gap-3">
                       <div className="relative aspect-video w-24 shrink-0 overflow-hidden rounded-md bg-[var(--skeleton)]">
-                        {c.youtube_id && <Image src={thumbnailUrl(c.youtube_id)} alt="" fill sizes="96px" className="object-cover" />}
+                        {parsePreviewClip(c.preview_clip) && <Image src={clipPosterUrl(parsePreviewClip(c.preview_clip)!.url)} alt="" fill sizes="96px" className="object-cover" />}
                       </div>
                       <div className="min-w-0">
                         <Link href={`/admin/cards/${c.id}`} className="line-clamp-2 font-medium hover:underline">

@@ -13,3 +13,6 @@ supabase/functions/.env
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
+
+# in-browser video tool, copied from node_modules by scripts/copy-ffmpeg.mjs
+/public/ffmpeg

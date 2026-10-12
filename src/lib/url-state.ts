@@ -56,3 +56,8 @@ export function safeNext(next: string | null | undefined): string {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return "/effects";
   return next;
 }
+
+/** Shareable card page, e.g. /effects/cartoon-question-mark-pop (R3). */
+export function cardHref(card: { sectionSlug: string; slug: string }): string {
+  return `/${card.sectionSlug}/${card.slug}`;
+}

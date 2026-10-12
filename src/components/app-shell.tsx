@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { AudioProvider } from "./audio-player";
 import { Guide } from "./guide";
 import { useHub } from "./hub-context";
 import { TopBar } from "./top-bar";
@@ -10,7 +11,7 @@ const OFFSET = { full: "pl-[var(--guide-full)]", mini: "pl-[var(--guide-mini)]",
 export function AppShell({ children }: { children: ReactNode }) {
   const { guideMode } = useHub();
   return (
-    <>
+    <AudioProvider>
       <a
         href="#main"
         className="fixed left-2 top-2 z-[70] -translate-y-20 rounded-md bg-chip-on-bg px-3 py-2 text-sm text-chip-on-fg focus:translate-y-0"
@@ -22,7 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main id="main" className={`min-h-screen pt-14 ${OFFSET[guideMode]}`}>
         {children}
       </main>
-    </>
+    </AudioProvider>
   );
 }
 

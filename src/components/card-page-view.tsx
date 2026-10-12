@@ -2,23 +2,45 @@
 
 // Shareable card page, e.g. /effects/tv-documentary-football-screen (R3).
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getDataSource } from "@/lib/data-source";
-import type { Card, Section } from "@/lib/types";
-import { buildHref } from "@/lib/url-state";
-import { thumbnailUrl } from "@/lib/youtube";
+import type { Card, Section, SectionKind } from "@/lib/types";
+import { clipLargeUrl } from "@/lib/cloudinary-url";
+import { buildHref, cardHref } from "@/lib/url-state";
+import { AudioCover } from "./audio-cover";
+import { useAudio } from "./audio-player";
 import { CardActions } from "./card-actions";
 import { useHub } from "./hub-context";
 import { CheckIcon, LinkIcon, SECTION_ICONS } from "./icons";
-import { PreviewPlayer } from "./preview-player";
 import { MessageState, PillLink } from "./states";
-import { cardHref } from "./video-card";
 
 type State = { status: "loading" } | { status: "missing" } | { status: "ready"; card: Card };
 
-function CopyLinkButton({ card }: { card: Card }) {
+/** The card's main media: the preview clip (bigger), or the audio cover whose
+ *  Play button opens the site's audio player. */
+function CardMedia({ card, kind }: { card: Card; kind: SectionKind }) {
+  const { playCard } = useAudio();
+  const Icon = SECTION_ICONS[kind];
+  return (
+    <div className="relative aspect-video max-w-full overflow-hidden bg-black sm:rounded-[var(--radius-thumb)]">
+      {card.mediaType === "audio" ? (
+        <AudioCover card={card} size="page" onPlay={() => playCard(card, kind)} />
+      ) : card.previewClip ? (
+        <video src={clipLargeUrl(card.previewClip.url)} muted loop autoPlay playsInline aria-label={`Preview: ${card.title}`} className="absolute inset-0 h-full w-full object-contain" />
+      ) : (
+        <div className="absolute inset-0 grid place-items-center text-fg-2">
+          <div className="flex flex-col items-center gap-2">
+            <Icon size={40} />
+            <span>No preview added yet</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function CopyLinkButton({ card }: { card: Card }) {
   const [copied, setCopied] = useState(false);
   const url = typeof window === "undefined" ? cardHref(card) : `${window.location.origin}${cardHref(card)}`;
   return (
@@ -96,21 +118,7 @@ export function CardPageView({ section, slug }: { section: Section; slug: string
   return (
     <div className="mx-auto grid max-w-[1400px] gap-6 px-6 py-6 max-sm:px-0 max-sm:pt-0 lg:grid-cols-[minmax(0,1fr)_380px]">
       <title>{`${card.title} · RohTre Vault`}</title>
-      <div className="relative aspect-video max-w-full overflow-hidden bg-black sm:rounded-[var(--radius-thumb)]">
-        {card.youtubeId ? (
-          <>
-            <Image src={thumbnailUrl(card.youtubeId)} alt="" fill sizes="(max-width: 1024px) 100vw, 1000px" className="object-cover" priority />
-            <PreviewPlayer youtubeId={card.youtubeId} start={card.previewStart} end={card.previewEnd} active title={card.title} />
-          </>
-        ) : (
-          <div className="absolute inset-0 grid place-items-center text-fg-2">
-            <div className="flex flex-col items-center gap-2">
-              <Icon size={40} />
-              <span>No preview added yet</span>
-            </div>
-          </div>
-        )}
-      </div>
+      <CardMedia card={card} kind={section.kind} />
 
       <div className="flex min-w-0 flex-col gap-5 max-sm:px-3">
         <div>

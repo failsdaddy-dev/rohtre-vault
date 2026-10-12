@@ -12,7 +12,7 @@ leaks, years of work leak with it.
 | A restricted editor discovers other content | Cards, filters, groups, counts, search and card links all use the same visibility rule; an unknown or hidden filter in a URL returns nothing | `browse_cards`, `can_view_filter` |
 | Mega links copied from the page or network tab | `card_links.url` is never granted to browser roles (column privileges). Only `get-asset-link` (service role) returns one URL after an access check, and logs it | `release_asset_link` |
 | An editor promotes themselves | No browser writes on profiles or access lists; role is never read from user metadata | access rules, `handle_new_user` |
-| Stolen admin password | While admin 2FA is switched on, admin writes require a code-verified (aal2) session, in the database and in the Edge Functions. Switching 2FA off itself needs an aal2 session. If the admin switches 2FA off, the password alone is enough (owner's choice) | `private.is_admin`, `_shared/common.ts` |
+| Stolen admin password | 2FA was removed on 2026-10-12 (owner's choice), so the admin password alone opens the admin tools. Mitigation: a long unique password, disable accounts that leave, watch the audit log | `private.is_admin`, `_shared/common.ts` |
 | Login redirect abuse | `?next=` accepts same-site paths only | `safeNext` (unit tested) |
 | Other sites embedding or scripting the app | `X-Frame-Options: DENY`, CSP `frame-ancestors 'none'`, CORS on functions limited to `ALLOWED_ORIGINS` | `next.config.ts`, functions |
 | Search engines | `noindex` meta, `X-Robots-Tag`, robots.txt disallow all | layout, headers |
@@ -41,7 +41,7 @@ project earlier; all 50 pass offline (PGlite). Re-run after `db push`.
 
 1. `ALLOWED_ORIGINS` secret = the real domain (and remove localhost).
 2. Supabase Auth URL configuration: Site URL and redirect URLs = the real domain.
-3. Confirm sign-ups and anonymous sign-ins are off; TOTP MFA on.
+3. Confirm sign-ups and anonymous sign-ins are off.
 4. Run the RLS test in the SQL editor and keep the `48 passed` result.
 5. Supabase Dashboard → Advisors (security): fix anything it lists.
 
@@ -49,7 +49,7 @@ project earlier; all 50 pass offline (PGlite). Re-run after `db push`.
 
 Verified against official docs during the build:
 Supabase API keys and `SUPABASE_SECRET_KEYS`; RLS performance and
-security-definer guidance; MFA aal2 enforcement; column-level privileges;
+security-definer guidance; column-level privileges;
 `db push` flags; functions deploy without Docker (`--use-api`); free-plan
 project limit; Next.js 16 proxy and Cache Components; YouTube IFrame API
 (states, `seekTo`, 200×200 minimum, `loop` needs `playlist`,

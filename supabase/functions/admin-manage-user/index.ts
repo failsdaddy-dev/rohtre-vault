@@ -1,4 +1,4 @@
-// POST { action, user_id, ... }  Admin only (active admin + 2FA session).
+// POST { action, user_id, ... }  Admin only (active admin).
 //   disable          -> profile off + login banned: locked out at once
 //   enable           -> undo disable
 //   delete           -> removes the login and profile

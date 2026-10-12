@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
-import { MAX_AUTOPLAY } from "@/lib/preview-coordinator";
-import { updateSettings, useSettings } from "@/lib/settings";
 import { useHub } from "./hub-context";
-import { AutoplayIcon, LogoutIcon, ShieldIcon } from "./icons";
+import { LogoutIcon, ShieldIcon } from "./icons";
 import { useDismiss } from "./popover";
 
 export function Avatar({ name, size = 32 }: { name: string; size?: number }) {
@@ -28,7 +26,6 @@ export function Avatar({ name, size = 32 }: { name: string; size?: number }) {
 
 export function UserMenu() {
   const { user } = useHub();
-  const { autoplay } = useSettings();
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
@@ -60,29 +57,6 @@ export function UserMenu() {
             </div>
           </div>
           <div className="flex flex-col gap-0.5 pt-1.5">
-            <button
-              type="button"
-              role="menuitemcheckbox"
-              aria-checked={autoplay}
-              onClick={() => updateSettings({ autoplay: !autoplay })}
-              className="vh-menu-item flex w-full items-center gap-4 text-left"
-            >
-              <AutoplayIcon />
-              <span className="flex-1">
-                Autoplay visible previews
-                <span className="block text-xs text-fg-2">Up to {MAX_AUTOPLAY} at once. Off: play on hover.</span>
-              </span>
-              <span
-                aria-hidden="true"
-                className={`relative h-5 w-9 rounded-full ${autoplay ? "bg-brand" : "bg-chip-hover"}`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform duration-200 ${
-                    autoplay ? "translate-x-4" : ""
-                  }`}
-                />
-              </span>
-            </button>
             {user.role === "admin" && (
               <Link
                 href="/admin"

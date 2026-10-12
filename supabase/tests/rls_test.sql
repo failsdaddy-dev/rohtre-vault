@@ -32,9 +32,6 @@ begin
                (u_expired, 'zz-expired@test.local')) as v (id, email);
 
   update public.profiles set role = 'admin' where id = u_admin;
-  -- Admin has 2FA switched on (a verified authenticator factor).
-  insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
-  values (gen_random_uuid(), u_admin, 'zz-test', 'totp', 'verified', now(), now());
   update public.profiles set all_access = true where id in (u_senior, u_disabled, u_expired);
   update public.profiles set is_active = false where id = u_disabled;
   update public.profiles set expires_at = now() - interval '1 day' where id = u_expired;
@@ -53,12 +50,28 @@ begin
   insert into public.card_filters values (c1, f_ped), (c1, f_cartoon), (c2, f_cartoon), (c2, f_fc20), (c3, f_ped);
   insert into public.card_links (card_id, kind, label, url) values (c1, 'project', 'Premiere Pro', 'https://mega.nz/file/zz-one') returning id into l1;
   insert into public.card_links (card_id, kind, label, url) values (c2, 'download', 'Transparent .mov', 'https://mega.nz/file/zz-two') returning id into l2;
+  update public.cards set media_type = 'audio',
+         audio_preview = '{"url":"https://res.cloudinary.com/zz/video/upload/v1/rohtre-vault/music/zz-one.mp3","public_id":"rohtre-vault/music/zz-one","version":1,"format":"mp3","bytes":500000,"duration":30}'
+   where id = c1;
 
   -- ---------------------------------------------------- triggers worked
   select count(*) into n from public.cards where id = c1 and has_project_files and not has_downloads;
   names := array_append(names, ('has_project_files flag set from card_links')::text); oks := array_append(oks, ((n = 1))::boolean);
   select count(*) into n from public.cards where id = c2 and has_downloads and not has_project_files;
   names := array_append(names, ('has_downloads flag set from card_links')::text); oks := array_append(oks, ((n = 1))::boolean);
+  -- preview limits hold even if the admin form is bypassed
+  begin
+    update public.cards set audio_preview = jsonb_set(audio_preview, '{bytes}', '2000000') where id = c1; ok := false;
+  exception when check_violation then ok := true; end;
+  names := array_append(names, ('audio preview over 1 MB is refused')::text); oks := array_append(oks, (ok)::boolean);
+  begin
+    update public.cards set audio_preview = jsonb_set(audio_preview, '{duration}', '95') where id = c1; ok := false;
+  exception when check_violation then ok := true; end;
+  names := array_append(names, ('audio preview over 30 seconds is refused')::text); oks := array_append(oks, (ok)::boolean);
+  begin
+    update public.cards set preview_clip = '{"url":"https://evil.example/x.mp4","public_id":"rohtre-vault/previews/x","bytes":1000,"duration":5}' where id = c2; ok := false;
+  exception when check_violation then ok := true; end;
+  names := array_append(names, ('preview clip must come from Cloudinary')::text); oks := array_append(oks, (ok)::boolean);
   update auth.users set last_sign_in_at = now() where id = u_restricted;
   select count(*) into n from public.audit_log where actor_id = u_restricted and action = 'login';
   names := array_append(names, ('sign-in writes a login audit row')::text); oks := array_append(oks, ((n = 1))::boolean);
@@ -137,6 +150,11 @@ begin
   exception when insufficient_privilege then ok := true; end;
   execute 'reset role'; names := array_append(names, ('editor cannot call admin_card_links')::text); oks := array_append(oks, (ok)::boolean);
 
+  execute 'set local role authenticated';
+  select count(*) into n from public.browse_cards('zz-test-sec') b where b.audio_preview is not null;
+  execute 'reset role';
+  names := array_append(names, (format('list carries the audio preview of a visible card (got %s, want 1)', n))::text); oks := array_append(oks, ((n = 1))::boolean);
+
   begin execute 'set local role authenticated';
     insert into public.cards (section_id, slug, title) values (sec, 'hack', 'Zz hack'); ok := false;
   exception when insufficient_privilege then ok := true; end;
@@ -167,38 +185,30 @@ begin
   names := array_append(names, (format('expired user sees nothing (got %s)', n))::text); oks := array_append(oks, ((n = 0))::boolean);
 
   -- --------------------------------------------------------------- admin
-  perform set_config('request.jwt.claims', json_build_object('sub', u_admin, 'role', 'authenticated', 'aal', 'aal1')::text, true);
-  begin execute 'set local role authenticated';
-    insert into public.cards (section_id, slug, title) values (sec, 'a1', 'Zz admin aal1'); ok := false;
-  exception when insufficient_privilege then ok := true; end;
-  execute 'reset role'; names := array_append(names, ('2FA on: admin session without the code cannot write')::text); oks := array_append(oks, (ok)::boolean);
-
-  -- 2FA switched off: the password session is enough.
-  delete from auth.mfa_factors where user_id = u_admin;
+  -- 2FA was removed (2026-10-12): the admin's password session is enough.
   perform set_config('request.jwt.claims', json_build_object('sub', u_admin, 'role', 'authenticated', 'aal', 'aal1')::text, true);
   execute 'set local role authenticated';
-  select count(*) into n from public.cards where id = c3;
+  insert into public.cards (section_id, slug, title) values (sec, 'a2', 'Zz admin card');
+  select count(*) into n from public.cards where section_id = sec;
+  names := array_append(names, (format('admin (password session) can write and sees drafts (got %s, want 4)', n))::text); oks := array_append(oks, ((n = 4))::boolean);
   execute 'reset role';
-  names := array_append(names, ('2FA off: admin works with the password session')::text); oks := array_append(oks, (n = 1)::boolean);
-  -- A plain editor never becomes admin, whatever their 2FA state.
+  -- A plain editor never becomes admin.
   perform set_config('request.jwt.claims', json_build_object('sub', u_restricted, 'role', 'authenticated', 'aal', 'aal1')::text, true);
   begin execute 'set local role authenticated';
     insert into public.cards (section_id, slug, title) values (sec, 'hack2', 'Zz hack2'); ok := false;
   exception when insufficient_privilege then ok := true; end;
-  execute 'reset role'; names := array_append(names, ('editor without 2FA still cannot write')::text); oks := array_append(oks, (ok)::boolean);
-  insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
-  values (gen_random_uuid(), u_admin, 'zz-test', 'totp', 'verified', now(), now());
+  execute 'reset role'; names := array_append(names, ('editor still cannot write')::text); oks := array_append(oks, (ok)::boolean);
 
-  perform set_config('request.jwt.claims', json_build_object('sub', u_admin, 'role', 'authenticated', 'aal', 'aal2')::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', u_admin, 'role', 'authenticated', 'aal', 'aal1')::text, true);
   execute 'set local role authenticated';
-  insert into public.cards (section_id, slug, title) values (sec, 'a2', 'Zz admin aal2');
-  select count(*) into n from public.cards where section_id = sec;
-  names := array_append(names, (format('admin with 2FA can write and sees drafts (got %s, want 4)', n))::text); oks := array_append(oks, ((n = 4))::boolean);
   select count(*) into n from public.admin_card_links(c1);
-  names := array_append(names, ('admin with 2FA can read Mega links for editing')::text); oks := array_append(oks, ((n = 1))::boolean);
+  names := array_append(names, ('admin can read Mega links for editing')::text); oks := array_append(oks, ((n = 1))::boolean);
   perform public.admin_save_card_links(c2, '[{"kind":"project","label":"After Effects","url":"https://mega.nz/file/zz-three"}]'::jsonb);
   select count(*) into n from public.cards where id = c2 and has_project_files and not has_downloads;
   names := array_append(names, ('admin_save_card_links replaces links and updates flags')::text); oks := array_append(oks, ((n = 1))::boolean);
+  update public.cards set preview_clip = '{"url":"https://res.cloudinary.com/zz/video/upload/v1/rohtre-vault/previews/zz.mp4","public_id":"rohtre-vault/previews/zz","version":1,"format":"mp4","bytes":1500000,"duration":8}' where id = c2;
+  select count(*) into n from public.cards where id = c2 and preview_clip is not null;
+  names := array_append(names, ('admin can set a preview clip')::text); oks := array_append(oks, ((n = 1))::boolean);
   execute 'reset role';
 
   -- ---------------------------------------- link release (Edge Function path)

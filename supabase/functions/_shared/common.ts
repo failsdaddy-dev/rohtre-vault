@@ -49,7 +49,6 @@ export function json(req: Request, body: unknown, status = 200): Response {
 export interface Caller {
   id: string;
   email: string;
-  aal: string;
 }
 
 /** Verifies the caller's access token (signature + expiry) and returns who they are. */
@@ -59,13 +58,10 @@ export async function getCaller(req: Request): Promise<Caller | null> {
   const { data, error } = await admin.auth.getClaims(token);
   const claims = data?.claims;
   if (error || !claims?.sub || claims.role !== "authenticated") return null;
-  return { id: claims.sub, email: String(claims.email ?? ""), aal: String(claims.aal ?? "aal1") };
+  return { id: claims.sub, email: String(claims.email ?? "") };
 }
 
-/**
- * Same rule as private.is_admin(): an active admin profile, and if the admin
- * has 2FA switched on, a session verified with the code (aal2).
- */
+/** Same rule as private.is_admin(): an active, unexpired admin profile. */
 export async function isAdmin(caller: Caller): Promise<boolean> {
   const { data } = await admin
     .from("profiles")
@@ -73,11 +69,7 @@ export async function isAdmin(caller: Caller): Promise<boolean> {
     .eq("id", caller.id)
     .maybeSingle();
   if (!data || data.role !== "admin" || !data.is_active) return false;
-  if (data.expires_at && new Date(data.expires_at) <= new Date()) return false;
-  if (caller.aal === "aal2") return true;
-  const { data: f, error } = await admin.auth.admin.mfa.listFactors({ userId: caller.id });
-  if (error) return false;
-  return !(f?.factors ?? []).some((x) => x.status === "verified");
+  return !(data.expires_at && new Date(data.expires_at) <= new Date());
 }
 
 export async function audit(caller: Caller, action: string, details: Record<string, unknown>) {

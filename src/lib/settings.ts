@@ -1,6 +1,6 @@
 "use client";
 
-// Per-browser preferences (theme, autoplay). Stored in localStorage; every
+// Per-browser preferences (theme). Stored in localStorage; every
 // access is guarded because storage can be blocked.
 
 import { useSyncExternalStore } from "react";
@@ -10,10 +10,9 @@ export type Theme = "dark" | "light";
 
 export interface Settings {
   theme: Theme;
-  autoplay: boolean;
 }
 
-const DEFAULTS: Settings = { theme: "dark", autoplay: false };
+const DEFAULTS: Settings = { theme: "dark" };
 
 let current: Settings | null = null;
 const listeners = new Set<() => void>();

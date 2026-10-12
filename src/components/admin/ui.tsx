@@ -13,7 +13,6 @@ const TABS = [
   { href: "/admin/sections", label: "Sections" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/audit", label: "Audit log" },
-  { href: "/admin/security", label: "2FA" },
 ];
 
 export function AdminFrame({ title, actions, children }: { title: string; actions?: ReactNode; children: ReactNode }) {

@@ -10,7 +10,7 @@ import { ThemeToggle, Wordmark } from "@/components/top-bar";
 const STATS = [
   { value: "5", label: "Libraries", sub: "Effects to fonts" },
   { value: "1", label: "Standard", sub: "Style for every edit" },
-  { value: "2FA", label: "Protected", sub: "Every sign-in" },
+  { value: "100%", label: "Private", sub: "Login required" },
   { value: "0", label: "Public sign-ups", sub: "Admin invites only" },
 ];
 

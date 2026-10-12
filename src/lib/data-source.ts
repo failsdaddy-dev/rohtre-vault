@@ -1,7 +1,7 @@
 // The one place the UI gets data from: Supabase (data-source-supabase.ts) when
 // configured, otherwise the sample data below. Both follow the same rules.
 
-import { CARDS, FILTERS, FILTER_GROUPS, SECTIONS, mockLinkLabels } from "./mock-data";
+import { CARDS, FILTERS, FILTER_GROUPS, SECTIONS, mockLinkLabels, sampleToneUrl } from "./mock-data";
 import type { BrowsePage, BrowseQuery, Card, Cursor, Filter, FilterGroup, LinkLabel, Section } from "./types";
 
 export const PAGE_SIZE = 24;
@@ -17,6 +17,9 @@ export interface DataSource {
   linkLabels(cardId: string): Promise<LinkLabel[]>;
   /** Asks the server for a Mega link. Checks access and writes the audit log. */
   openLink(linkId: string): Promise<string>;
+  /** Where to play a card's 30-second audio preview (a public Cloudinary
+   *  file; the full track is on Mega). */
+  audioSrc(card: Card): string | null;
 }
 
 export class NotConnectedError extends Error {
@@ -113,6 +116,9 @@ export const mockSource: DataSource = {
   async openLink() {
     await wait(300);
     throw new NotConnectedError();
+  },
+  audioSrc(card) {
+    return card.audioPreview ? sampleToneUrl(card.id) : null;
   },
 };
 

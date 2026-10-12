@@ -5,7 +5,6 @@ import { loomEmbedUrl } from "@/lib/loom";
 import { CARDS, FILTERS } from "@/lib/mock-data";
 import type { Card } from "@/lib/types";
 import { buildHref, buildQueryString, parseUrlState, toggleFilter } from "@/lib/url-state";
-import { parseYouTubeId } from "@/lib/youtube";
 
 const params = (qs: string) => new URLSearchParams(qs);
 
@@ -98,18 +97,6 @@ describe("greyed buttons (R2)", () => {
 });
 
 describe("link parsing", () => {
-  it("reads YouTube IDs from common URL forms", () => {
-    for (const u of [
-      "M7lc1UVf-VE",
-      "https://www.youtube.com/watch?v=M7lc1UVf-VE",
-      "https://youtu.be/M7lc1UVf-VE",
-      "https://www.youtube.com/shorts/M7lc1UVf-VE",
-      "https://www.youtube.com/embed/M7lc1UVf-VE?start=3",
-    ]) {
-      expect(parseYouTubeId(u)).toBe("M7lc1UVf-VE");
-    }
-    expect(parseYouTubeId("https://example.com/watch?v=M7lc1UVf-VE")).toBeNull();
-  });
   it("turns a Loom share link into an embed link", () => {
     expect(loomEmbedUrl("https://www.loom.com/share/abc123")).toMatch(/^https:\/\/www\.loom\.com\/embed\/abc123\?/);
     expect(loomEmbedUrl("https://evil.example/share/abc")).toBeNull();

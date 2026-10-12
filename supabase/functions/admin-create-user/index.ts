@@ -1,5 +1,5 @@
 // POST { email, password, display_name?, all_access?, filter_ids?, expires_at? }
-// Admin only (active admin + 2FA session). Creates a confirmed login; the
+// Admin only (active admin). Creates a confirmed login; the
 // editor signs in with the password the admin sets here.
 import { admin, audit, corsHeaders, getCaller, isAdmin, isUuid, json, readJson } from "../_shared/common.ts";
 
