@@ -98,6 +98,9 @@ export const ExternalIcon = (p: P) => (
 export const LinkIcon = (p: P) => (
   <Svg {...p}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></Svg>
 );
+export const PencilIcon = (p: P) => (
+  <Svg {...p}><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" /><path d="m13.5 6.5 4 4" /></Svg>
+);
 export const CheckIcon = (p: P) => (
   <Svg {...p}><path d="m5 12.5 4.5 4.5L19 7.5" /></Svg>
 );

@@ -10,6 +10,7 @@ import { clipPosterUrl } from "@/lib/cloudinary-url";
 import { AudioCover } from "./audio-cover";
 import { useAudio } from "./audio-player";
 import { CardActions } from "./card-actions";
+import { CardEditButton, EDIT_BUTTON_PLACEMENT } from "./card-edit";
 import { useHub } from "./hub-context";
 import { LinkIcon, MoreIcon, SECTION_ICONS } from "./icons";
 import { useDismiss } from "./popover";
@@ -169,40 +170,57 @@ export const VideoCard = memo(function VideoCard({ card, kind }: { card: Card; k
     }
   };
 
+  // Admin-only Edit (renders nothing for editors), a sibling of the card's
+  // links, never inside them. See EDIT_BUTTON_PLACEMENT in card-edit.tsx.
+  // The corner placement draws it in front of the preview; that would break
+  // YouTube's rules over a YouTube player, but these are our own clips.
+  const cornerEdit =
+    EDIT_BUTTON_PLACEMENT === "thumbnail-corner" ? <CardEditButton card={card} look="overlay" className="absolute right-2 top-2 z-10" /> : null;
+
+  const videoLink = audio ? null : (
+    <Link
+      href={href}
+      aria-label={card.title}
+      onClick={openModal}
+      onFocus={enter}
+      onBlur={leave}
+      className="relative block aspect-video max-w-full overflow-hidden bg-[var(--skeleton)] sm:rounded-[var(--radius-thumb)]"
+    >
+      {clip ? (
+        <Image
+          // The clip's first frame; the loop fades in over it.
+          src={clipPosterUrl(clip.url)}
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100vw, 400px"
+          className="object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <Placeholder title={card.title} kind={kind} />
+      )}
+      {clip && <ClipPreview url={clip.url} active={active} delayMs={Math.max(0, rank) * PREVIEW_STAGGER_MS} />}
+    </Link>
+  );
+
   return (
     <article ref={root} className="vh-offset on-hover vh-card group flex min-w-0 flex-col gap-3" onMouseEnter={enter} onMouseLeave={leave}>
       {audio ? (
         // Audio: the cover's own Play button (no link around it).
         <div className="relative aspect-video max-w-full overflow-hidden bg-[var(--skeleton)] sm:rounded-[var(--radius-thumb)]">
           <AudioCover card={card} onPlay={() => playCard(card, kind)} />
+          {cornerEdit}
+        </div>
+      ) : cornerEdit ? (
+        <div className="relative">
+          {videoLink}
+          {cornerEdit}
         </div>
       ) : (
-        <Link
-          href={href}
-          aria-label={card.title}
-          onClick={openModal}
-          onFocus={enter}
-          onBlur={leave}
-          className="relative block aspect-video max-w-full overflow-hidden bg-[var(--skeleton)] sm:rounded-[var(--radius-thumb)]"
-        >
-          {clip ? (
-            <Image
-              // The clip's first frame; the loop fades in over it.
-              src={clipPosterUrl(clip.url)}
-              alt=""
-              fill
-              sizes="(max-width: 640px) 100vw, 400px"
-              className="object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <Placeholder title={card.title} kind={kind} />
-          )}
-          {clip && <ClipPreview url={clip.url} active={active} delayMs={Math.max(0, rank) * PREVIEW_STAGGER_MS} />}
-        </Link>
+        videoLink
       )}
 
-      <div className="flex gap-2 max-sm:px-3">
+      <div className="@container flex gap-2 max-sm:px-3">
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-2 text-base font-medium leading-[22px]">
             <Link href={href} className="hover:underline-offset-2">
@@ -211,6 +229,7 @@ export const VideoCard = memo(function VideoCard({ card, kind }: { card: Card; k
           </h3>
           <FilterTags slugs={card.filterSlugs} />
         </div>
+        {!cornerEdit && <CardEditButton card={card} className="-mt-[5px]" />}
         <CardMenu card={card} />
       </div>
 

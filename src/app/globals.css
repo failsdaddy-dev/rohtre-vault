@@ -285,6 +285,31 @@ select {
 .vh-fade-out { animation: vh-fade-out var(--dur-1) var(--ease) both; }
 .vh-pop-out { animation: vh-pop-out var(--dur-1) var(--ease) both; }
 
+/* Admin card edit drawer: slides in from the right (a full-screen sheet on
+   phones rises slightly instead). */
+@keyframes vh-drawer-in {
+  from { opacity: 0; transform: translateX(32px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes vh-drawer-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(32px); }
+}
+@keyframes vh-sheet-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes vh-sheet-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(16px); }
+}
+.vh-drawer-in { animation: vh-drawer-in var(--dur-2) var(--ease-out) both; }
+.vh-drawer-out { animation: vh-drawer-out var(--dur-1) var(--ease) both; }
+@media (max-width: 639px) {
+  .vh-drawer-in { animation-name: vh-sheet-in; }
+  .vh-drawer-out { animation-name: vh-sheet-out; }
+}
+
 /* Buttons and chips: on hover they lift off a solid offset block (red, or
    the text colour on red buttons), and press back flat when clicked. An
    outer box-shadow never paints under the button, so see-through chips stay

@@ -3,6 +3,7 @@
 // Shareable card page, e.g. /effects/tv-documentary-football-screen (R3).
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getDataSource } from "@/lib/data-source";
 import type { Card, Section, SectionKind } from "@/lib/types";
@@ -11,6 +12,7 @@ import { buildHref, cardHref } from "@/lib/url-state";
 import { AudioCover } from "./audio-cover";
 import { useAudio } from "./audio-player";
 import { CardActions } from "./card-actions";
+import { CardEditButton, useCardSaved } from "./card-edit";
 import { useHub } from "./hub-context";
 import { CheckIcon, LinkIcon, SECTION_ICONS } from "./icons";
 import { MessageState, PillLink } from "./states";
@@ -76,6 +78,19 @@ export function CopyLinkButton({ card }: { card: Card }) {
 export function CardPageView({ section, slug }: { section: Section; slug: string }) {
   const { filterBySlug, groups } = useHub();
   const [state, setState] = useState<State>({ status: "loading" });
+  const [reload, setReload] = useState(0);
+  const router = useRouter();
+
+  // Admin saved this card from the Edit drawer: show the new version, or
+  // follow it to its new address if the section or link name changed.
+  useCardSaved((saved) => {
+    if (state.status !== "ready" || saved.id !== state.card.id) return;
+    if (saved.sectionSlug !== section.slug || saved.slug !== slug) {
+      router.replace(`/${saved.sectionSlug}/${saved.slug}`);
+    } else {
+      setReload((n) => n + 1);
+    }
+  });
 
   useEffect(() => {
     let live = true;
@@ -86,7 +101,7 @@ export function CardPageView({ section, slug }: { section: Section; slug: string
     return () => {
       live = false;
     };
-  }, [section.slug, slug]);
+  }, [section.slug, slug, reload]);
 
   if (state.status === "loading") {
     return (
@@ -125,7 +140,10 @@ export function CardPageView({ section, slug }: { section: Section; slug: string
           <Link href={`/${section.slug}`} className="inline-flex items-center gap-1.5 text-sm text-fg-2 hover:text-fg">
             <Icon size={16} /> {section.name}
           </Link>
-          <h1 className="mt-1 text-xl font-bold leading-7 [text-wrap:balance]">{card.title}</h1>
+          <div className="mt-1 flex items-start gap-3">
+            <h1 className="min-w-0 flex-1 text-xl font-bold leading-7 [text-wrap:balance]">{card.title}</h1>
+            <CardEditButton card={card} look="header" className="-mt-0.5" />
+          </div>
         </div>
 
         <CardActions card={card} kind={section.kind} size="page" />

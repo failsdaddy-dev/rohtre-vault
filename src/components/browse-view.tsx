@@ -4,10 +4,12 @@
 // scroll with a cursor, skeletons, and empty/error states (R21).
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getDataSource } from "@/lib/data-source";
+import { getDataSource, matchesFilters, searchScore } from "@/lib/data-source";
 import type { Card, Cursor, Section } from "@/lib/types";
 import { useBrowseUrl } from "@/lib/use-browse-url";
+import { useCardSaved } from "./card-edit";
 import { ChipBar } from "./chip-bar";
+import { useHub } from "./hub-context";
 import { SearchIcon, TuneIcon } from "./icons";
 import { CardSkeleton, GRID_CLASS, GridSkeleton, MessageState } from "./states";
 import { VideoCard } from "./video-card";
@@ -87,6 +89,23 @@ export function BrowseView({ section }: { section: Section }) {
   }, [next, loadMore]);
 
   const retry = () => setAttempt((a) => a + 1);
+
+  // Admin saved a card from the Edit drawer: refresh just that card in place
+  // (same fields as the list), or take it out if it no longer belongs in
+  // this view. Filters, search, URL and scroll position stay as they are.
+  const { filters } = useHub();
+  useCardSaved(async (saved) => {
+    if (!items.some((c) => c.id === saved.id)) return;
+    const fresh =
+      saved.status === "published" && saved.sectionSlug === section.slug
+        ? await getDataSource().card(saved.sectionSlug, saved.slug)
+        : null;
+    const fits = !!fresh && matchesFilters(fresh, state.filters, filters) && (!state.q || searchScore(fresh, state.q, filters) > 0);
+    setItems((prev) => (fits ? prev.map((c) => (c.id === saved.id ? fresh! : c)) : prev.filter((c) => c.id !== saved.id)));
+    if (fits) return "Saved";
+    if (saved.status !== "published") return "Saved as a draft. Drafts don’t show in the grid.";
+    return "Saved. This card no longer matches the current filters.";
+  });
 
   return (
     <div className="px-6 max-sm:px-0">

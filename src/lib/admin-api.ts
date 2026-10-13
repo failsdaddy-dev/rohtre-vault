@@ -72,10 +72,37 @@ export type CardInput = Pick<
   | "status"
 >;
 
-export async function saveCard(id: string | null, input: CardInput, filterIds: string[], links: EditableLink[]) {
+/** The card was changed by someone else since it was loaded (updated_at moved). */
+export class CardConflictError extends Error {
+  constructor() {
+    super("Someone else changed this card since you opened it.");
+  }
+}
+
+/**
+ * Creates or updates a card. With `expectedUpdatedAt`, the update only
+ * applies if the card is unchanged since it was loaded (the database's
+ * touch trigger moves updated_at on every write); otherwise it throws
+ * CardConflictError and nothing is written.
+ */
+export async function saveCard(
+  id: string | null,
+  input: CardInput,
+  filterIds: string[],
+  links: EditableLink[],
+  expectedUpdatedAt?: string,
+) {
   let cardId = id;
   if (cardId) {
-    check(await sb().from("cards").update(input).eq("id", cardId));
+    let q = sb().from("cards").update(input).eq("id", cardId);
+    if (expectedUpdatedAt) q = q.eq("updated_at", expectedUpdatedAt);
+    const rows = check(await q.select("id")) ?? [];
+    if (!rows.length) {
+      // Nothing updated: either the card moved on, or RLS refused the write.
+      const now = check(await sb().from("cards").select("updated_at").eq("id", cardId).maybeSingle());
+      if (expectedUpdatedAt && now && now.updated_at !== expectedUpdatedAt) throw new CardConflictError();
+      throw new Error(now ? "You don’t have permission to edit this card." : "This card no longer exists.");
+    }
   } else {
     const row = check(await sb().from("cards").insert(input).select("id").single());
     if (!row) throw new Error("The card wasn't created.");

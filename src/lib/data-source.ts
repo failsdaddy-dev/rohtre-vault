@@ -47,7 +47,9 @@ export function matchesFilters(card: Card, selected: readonly string[], filters:
   return true;
 }
 
-function searchScore(card: Card, q: string, filters: readonly Filter[]): number {
+/** Same idea as the SQL search: every word must prefix-match the title,
+ *  a filter name or the description. Returns 0 for no match. */
+export function searchScore(card: Card, q: string, filters: readonly Filter[]): number {
   const words = q.toLowerCase().replace(/[^\p{L}\p{N}\s]+/gu, " ").split(/\s+/).filter(Boolean);
   if (!words.length) return 1;
   const names = card.filterSlugs.map((s) => filters.find((f) => f.slug === s)?.name ?? "").join(" ");

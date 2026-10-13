@@ -150,6 +150,24 @@ begin
   exception when insufficient_privilege then ok := true; end;
   execute 'reset role'; names := array_append(names, ('editor cannot call admin_card_links')::text); oks := array_append(oks, (ok)::boolean);
 
+  -- The card Edit drawer saves through these same writes; an editor calling
+  -- them directly gets nothing done.
+  execute 'set local role authenticated';
+  update public.cards set title = 'Zz hacked' where id = c1;
+  get diagnostics n = row_count;
+  execute 'reset role';
+  select count(*) + n into n from public.cards where id = c1 and title = 'Zz hacked';
+  names := array_append(names, (format('editor cannot update a card they can see (got %s rows, want 0)', n))::text); oks := array_append(oks, ((n = 0))::boolean);
+
+  begin execute 'set local role authenticated';
+    perform public.admin_save_card_links(c1, '[{"kind":"download","label":"x","url":"https://mega.nz/file/zz-hack"}]'::jsonb); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  execute 'reset role'; names := array_append(names, ('editor cannot call admin_save_card_links')::text); oks := array_append(oks, (ok)::boolean);
+
+  begin execute 'set local role authenticated'; perform public.admin_set_card_filters(c1, array[f_ped]); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  execute 'reset role'; names := array_append(names, ('editor cannot call admin_set_card_filters')::text); oks := array_append(oks, (ok)::boolean);
+
   execute 'set local role authenticated';
   select count(*) into n from public.browse_cards('zz-test-sec') b where b.audio_preview is not null;
   execute 'reset role';
@@ -209,6 +227,13 @@ begin
   update public.cards set preview_clip = '{"url":"https://res.cloudinary.com/zz/video/upload/v1/rohtre-vault/previews/zz.mp4","public_id":"rohtre-vault/previews/zz","version":1,"format":"mp4","bytes":1500000,"duration":8}' where id = c2;
   select count(*) into n from public.cards where id = c2 and preview_clip is not null;
   names := array_append(names, ('admin can set a preview clip')::text); oks := array_append(oks, ((n = 1))::boolean);
+  -- Edit drawer conflict guard: an update pinned to an old updated_at writes nothing.
+  update public.cards set title = 'Zz stale' where id = c2 and updated_at = '2000-01-01T00:00:00Z';
+  get diagnostics n = row_count;
+  names := array_append(names, (format('save with a stale updated_at changes no row (got %s)', n))::text); oks := array_append(oks, ((n = 0))::boolean);
+  update public.cards set title = 'Zz fresh' where id = c2 and updated_at = (select updated_at from public.cards where id = c2);
+  get diagnostics n = row_count;
+  names := array_append(names, (format('save with the current updated_at goes through (got %s)', n))::text); oks := array_append(oks, ((n = 1))::boolean);
   execute 'reset role';
 
   -- ---------------------------------------- link release (Edge Function path)

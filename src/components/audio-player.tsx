@@ -18,6 +18,7 @@ import { previewCoordinator } from "@/lib/preview-coordinator";
 import type { Card, SectionKind } from "@/lib/types";
 import { useHub } from "./hub-context";
 import { CardActions } from "./card-actions";
+import { CardEditButton } from "./card-edit";
 import { CloseIcon, LoopIcon, PauseIcon, PlayIcon, VolumeIcon, VolumeOffIcon } from "./icons";
 import { Waveform } from "./waveform";
 
@@ -256,6 +257,8 @@ function AudioDock({ track, onClose }: { track: Track; onClose: () => void }) {
             </div>
           )}
         </div>
+        {/* Admins only; the track keeps playing while the drawer is open. */}
+        {card && <CardEditButton card={card} look="header" className="-mt-0.5" />}
         <button
           type="button"
           onClick={onClose}

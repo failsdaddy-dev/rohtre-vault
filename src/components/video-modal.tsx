@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import type { Card, SectionKind } from "@/lib/types";
 import { pauseAudio } from "./audio-player";
 import { CardActions } from "./card-actions";
+import { CardEditButton } from "./card-edit";
 import { CopyLinkButton } from "./card-page-view";
 import { useHub } from "./hub-context";
 import { Modal } from "./modal";
@@ -29,7 +30,14 @@ export function VideoModal({ card, kind, open, onClose }: { card: Card; kind: Se
   const names = card.filterSlugs.map((s) => filterBySlug.get(s)?.name).filter((n): n is string => !!n);
 
   return (
-    <Modal open={open} onClose={onClose} title={card.title} wide>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={card.title}
+      wide
+      // Admins: Edit closes this popup first, so only the drawer is open.
+      headerActions={<CardEditButton card={card} look="header" beforeEdit={onClose} />}
+    >
       {open && card.previewClip && (
         <video
           src={clipLargeUrl(card.previewClip.url)}
