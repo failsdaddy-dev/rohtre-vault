@@ -46,6 +46,9 @@ interface CardEditValue {
 }
 
 const CardEditContext = createContext<CardEditValue | null>(null);
+// The drawer itself, drawn by <CardEditHost /> inside the audio player's
+// provider (the form's upload preview uses the audio player).
+const DrawerContext = createContext<ReactNode>(null);
 
 /** Only signed-in admins on the real database get Edit (sample data has no admin form). */
 export function canEditCards(user: Pick<CurrentUser, "role"> | null | undefined, sampleMode: boolean): boolean {
@@ -116,34 +119,40 @@ export function CardEditProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CardEditValue | null>(() => (allowed ? { edit, subscribe } : null), [allowed, edit, subscribe]);
 
+  const drawer = allowed && target && (
+    <Modal open={open} onClose={requestClose} title={`Edit: ${target.title}`} variant="drawer" returnFocus={opener}>
+      {confirming && (
+        <div role="alertdialog" aria-label="Unsaved changes" className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-line bg-menu px-5 py-3 text-sm">
+          <p className="flex-1 font-medium">Discard your unsaved changes?</p>
+          <Button id="vh-keep-editing" onClick={() => setConfirming(false)}>
+            Keep editing
+          </Button>
+          <Button variant="danger" onClick={close}>
+            Discard
+          </Button>
+        </div>
+      )}
+      <CardEditor
+        key={`${target.id}:${target.n}`}
+        id={target.id}
+        variant="drawer"
+        onSaved={onSaved}
+        onCancel={requestClose}
+        onDirtyChange={onDirtyChange}
+      />
+    </Modal>
+  );
+
   return (
     <CardEditContext value={value}>
-      {children}
-      {allowed && target && (
-        <Modal open={open} onClose={requestClose} title={`Edit: ${target.title}`} variant="drawer" returnFocus={opener}>
-          {confirming && (
-            <div role="alertdialog" aria-label="Unsaved changes" className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-line bg-menu px-5 py-3 text-sm">
-              <p className="flex-1 font-medium">Discard your unsaved changes?</p>
-              <Button id="vh-keep-editing" onClick={() => setConfirming(false)}>
-                Keep editing
-              </Button>
-              <Button variant="danger" onClick={close}>
-                Discard
-              </Button>
-            </div>
-          )}
-          <CardEditor
-            key={`${target.id}:${target.n}`}
-            id={target.id}
-            variant="drawer"
-            onSaved={onSaved}
-            onCancel={requestClose}
-            onDirtyChange={onDirtyChange}
-          />
-        </Modal>
-      )}
+      <DrawerContext value={drawer || null}>{children}</DrawerContext>
     </CardEditContext>
   );
+}
+
+/** Where the edit drawer is drawn: inside AudioProvider (see app-shell). */
+export function CardEditHost() {
+  return <>{use(DrawerContext)}</>;
 }
 
 /** Null for everyone who isn't an admin. */

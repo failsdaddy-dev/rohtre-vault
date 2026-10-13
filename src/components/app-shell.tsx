@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AudioProvider } from "./audio-player";
-import { CardEditProvider } from "./card-edit";
+import { CardEditHost, CardEditProvider } from "./card-edit";
 import { Guide } from "./guide";
 import { useHub } from "./hub-context";
 import { TopBar } from "./top-bar";
@@ -12,7 +12,8 @@ const OFFSET = { full: "pl-[var(--guide-full)]", mini: "pl-[var(--guide-mini)]",
 export function AppShell({ children }: { children: ReactNode }) {
   const { guideMode } = useHub();
   return (
-    // Edit (admins) wraps the audio player so its dock can show Edit too.
+    // Edit (admins) wraps the audio player so its dock can show Edit too; the
+    // drawer itself is drawn inside it, because the form uses the player.
     <CardEditProvider>
       <AudioProvider>
         <a
@@ -26,6 +27,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main id="main" className={`min-h-screen pt-14 ${OFFSET[guideMode]}`}>
           {children}
         </main>
+        <CardEditHost />
       </AudioProvider>
     </CardEditProvider>
   );
