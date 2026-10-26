@@ -6,6 +6,13 @@
 
 const LOOM = /^https:\/\/(?:www\.)?loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/;
 
+/** The video's own page on loom.com (opened in a new tab by the Tutorial
+ *  button). Null if it isn't a Loom link, so nothing else can be opened. */
+export function loomShareUrl(url: string | null | undefined): string | null {
+  const m = url?.trim().match(LOOM);
+  return m ? `https://www.loom.com/share/${m[1]}` : null;
+}
+
 export function loomEmbedUrl(shareUrl: string | null | undefined): string | null {
   if (!shareUrl) return null;
   const m = shareUrl.trim().match(LOOM);

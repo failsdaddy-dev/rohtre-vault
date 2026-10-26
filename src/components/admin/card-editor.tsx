@@ -32,9 +32,8 @@ import {
 } from "@/lib/admin-api";
 import { parseAudioPreview, parsePreviewClip } from "@/lib/cloudinary-url";
 import type { Json } from "@/lib/database.types";
-import { loomEmbedUrl } from "@/lib/loom";
+import { loomEmbedUrl, loomShareUrl } from "@/lib/loom";
 import { CloseIcon } from "../icons";
-import { LoomModal } from "../loom-modal";
 import { useToast } from "../toast";
 import { PreviewUploader, type PreviewValue } from "./preview-uploader";
 import { FilterPicker } from "./filter-picker";
@@ -184,7 +183,6 @@ export function CardEditor({
   const [f, setF] = useState<FormState>(EMPTY);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [loomOpen, setLoomOpen] = useState(false);
   const [missing, setMissing] = useState(false);
   // Drawer: load state, the card's updated_at as loaded (conflict check) and
   // the form as loaded (unsaved-changes check).
@@ -482,7 +480,10 @@ export function CardEditor({
           <Field label="Tutorial (Loom share link)" hint="Leave empty if it isn’t recorded yet. The button then shows greyed out.">
             <div className="flex gap-2">
               <Input value={f.loom} onChange={(e) => set("loom", e.target.value)} placeholder="https://www.loom.com/share/…" />
-              <Button disabled={!loomEmbedUrl(f.loom)} onClick={() => setLoomOpen(true)}>
+              <Button
+                disabled={!loomEmbedUrl(f.loom)}
+                onClick={() => window.open(loomShareUrl(f.loom) ?? undefined, "_blank", "noopener,noreferrer")}
+              >
                 Test
               </Button>
             </div>
@@ -552,7 +553,6 @@ export function CardEditor({
       </div>
     </form>
   );
-  const loom = <LoomModal open={loomOpen} onClose={() => setLoomOpen(false)} title={f.title || "Tutorial"} loomUrl={f.loom} />;
 
   if (drawer) {
     return (
@@ -579,7 +579,6 @@ export function CardEditor({
             </Button>
           </div>
         </div>
-        {loom}
       </>
     );
   }
@@ -597,7 +596,6 @@ export function CardEditor({
       }
     >
       {form}
-      {loom}
     </AdminFrame>
   );
 }

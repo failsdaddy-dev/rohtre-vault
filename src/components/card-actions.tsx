@@ -1,6 +1,7 @@
 "use client";
 
-// The three card buttons. Tutorial opens Loom in a modal. Project files and
+// The three card buttons. Tutorial opens the Loom video on loom.com in a new
+// tab (no player on this site). Project files and
 // Download ask the server for the Mega link only when clicked (R16); a card
 // with several links (one per software or file type) shows a small menu.
 
@@ -8,8 +9,8 @@ import { useCallback, useRef, useState } from "react";
 import { cardButtons, type ButtonId } from "@/lib/card-buttons";
 import { getDataSource } from "@/lib/data-source";
 import type { Card, LinkKind, LinkLabel, SectionKind } from "@/lib/types";
+import { loomShareUrl } from "@/lib/loom";
 import { DownloadIcon, ExternalIcon, FolderIcon, PlayIcon } from "./icons";
-import { LoomModal } from "./loom-modal";
 import { useDismiss } from "./popover";
 import { useToast } from "./toast";
 
@@ -47,7 +48,6 @@ export function CardActions({
   size?: "card" | "page";
 }) {
   const toast = useToast();
-  const [loom, setLoom] = useState(false);
   const [menu, setMenu] = useState<{ kind: LinkKind; links: LinkLabel[] } | null>(null);
   const [busy, setBusy] = useState<ButtonId | null>(null);
   const box = useRef<HTMLDivElement>(null);
@@ -71,7 +71,12 @@ export function CardActions({
   };
 
   const onClick = async (id: ButtonId) => {
-    if (id === "tutorial") return setLoom(true);
+    if (id === "tutorial") {
+      const url = loomShareUrl(card.loomUrl);
+      if (url) window.open(url, "_blank", "noopener,noreferrer");
+      else toast("This tutorial link isn’t a Loom link.");
+      return;
+    }
     if (id === "source") {
       if (card.sourceUrl) window.open(card.sourceUrl, "_blank", "noopener,noreferrer");
       return;
@@ -102,7 +107,7 @@ export function CardActions({
               key={b.id}
               type="button"
               disabled={!b.enabled || busy === b.id}
-              aria-label={b.enabled ? b.long : `${b.long} (not added yet)`}
+              aria-label={b.enabled ? (b.id === "tutorial" ? `${b.long} (opens Loom in a new tab)` : b.long) : `${b.long} (not added yet)`}
               title={b.enabled ? b.long : "Not added yet"}
               aria-haspopup={b.id === "project" || b.id === "download" ? "menu" : undefined}
               aria-expanded={menu?.kind === (b.id === "project" ? "project" : "download") ? true : undefined}
@@ -144,8 +149,6 @@ export function CardActions({
           ))}
         </div>
       )}
-
-      <LoomModal open={loom} onClose={() => setLoom(false)} title={card.title} loomUrl={card.loomUrl} />
     </div>
   );
 }

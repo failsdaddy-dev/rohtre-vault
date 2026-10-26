@@ -18,8 +18,11 @@ export function CardSkeleton() {
   );
 }
 
+// A hovered card's panel reaches about 16px past it (white panel plus the red
+// offset, see .vh-card in globals.css), so desktop columns sit 40px apart and
+// a hovered card never covers its neighbour.
 export const GRID_CLASS =
-  "grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-[repeat(auto-fill,minmax(356px,1fr))]";
+  "grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-[repeat(auto-fill,minmax(356px,1fr))] sm:gap-x-10 sm:gap-y-12";
 
 export function GridSkeleton({ count = 12 }: { count?: number }) {
   return (
